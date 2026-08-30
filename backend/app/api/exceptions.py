@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.enums import ExceptionType, ExceptionStatus
 from app.schemas.exception import ExceptionListResponse, ExceptionDetailResponse
+from app.schemas.evidence import EvidencePackage
 from app.services.exception_service import ExceptionService
+from app.services.evidence_builder import EvidenceBuilder
 
 router = APIRouter()
 
@@ -40,3 +42,14 @@ def get_exception(
     db: Session = Depends(get_db)
 ):
     return ExceptionService.get_exception_detail(db=db, exception_id=id)
+
+@router.get(
+    "/exceptions/{id}/evidence",
+    response_model=EvidencePackage,
+    summary="Get structured evidence package for an exception"
+)
+def get_exception_evidence(
+    id: str = Path(..., description="Exception ID"),
+    db: Session = Depends(get_db)
+):
+    return EvidenceBuilder.build_package(db=db, exception_id=id)
