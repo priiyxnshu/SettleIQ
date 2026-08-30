@@ -6,9 +6,11 @@ from app.models.enums import ExceptionType, ExceptionStatus
 from app.schemas.exception import ExceptionListResponse, ExceptionDetailResponse
 from app.schemas.evidence import EvidencePackage
 from app.schemas.ai import AIInvestigationResult
+from app.schemas.guardrails import DecisionResponse
 from app.services.exception_service import ExceptionService
 from app.services.evidence_builder import EvidenceBuilder
 from app.services.ai_investigation_service import AIInvestigationService
+from app.guardrails.engine import GuardrailEngine
 
 router = APIRouter()
 
@@ -59,10 +61,21 @@ def get_exception_evidence(
 @router.post(
     "/exceptions/{id}/investigate",
     response_model=AIInvestigationResult,
-    summary="Run AI investigation on an exception"
+    summary="Run AI investigation on an exception (advisory output only)"
 )
 def investigate_exception(
     id: str = Path(..., description="Exception ID"),
     db: Session = Depends(get_db)
 ):
     return AIInvestigationService.investigate(db=db, exception_id=id)
+
+@router.post(
+    "/exceptions/{id}/evaluate",
+    response_model=DecisionResponse,
+    summary="Evaluate AI investigation against deterministic guardrails and make routing decision"
+)
+def evaluate_exception_guardrails(
+    id: str = Path(..., description="Exception ID"),
+    db: Session = Depends(get_db)
+):
+    return GuardrailEngine.evaluate_exception(db=db, exception_id=id)
