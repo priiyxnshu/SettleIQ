@@ -10,6 +10,11 @@ if backend_path not in sys.path:
 
 from app.config import settings
 from app.api.health import router as health_router
+from app.api.upload import router as upload_router
+from app.database.session import init_db
+
+# Initialize database schema on startup
+init_db()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -30,6 +35,7 @@ app.add_middleware(
 
 # Include API Routers
 app.include_router(health_router, prefix=settings.API_V1_STR, tags=["System"])
+app.include_router(upload_router, prefix=settings.API_V1_STR, tags=["Ingestion"])
 
 @app.get("/", tags=["Root"])
 def root():
