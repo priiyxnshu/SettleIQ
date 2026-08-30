@@ -5,8 +5,10 @@ from app.database.session import get_db
 from app.models.enums import ExceptionType, ExceptionStatus
 from app.schemas.exception import ExceptionListResponse, ExceptionDetailResponse
 from app.schemas.evidence import EvidencePackage
+from app.schemas.ai import AIInvestigationResult
 from app.services.exception_service import ExceptionService
 from app.services.evidence_builder import EvidenceBuilder
+from app.services.ai_investigation_service import AIInvestigationService
 
 router = APIRouter()
 
@@ -53,3 +55,14 @@ def get_exception_evidence(
     db: Session = Depends(get_db)
 ):
     return EvidenceBuilder.build_package(db=db, exception_id=id)
+
+@router.post(
+    "/exceptions/{id}/investigate",
+    response_model=AIInvestigationResult,
+    summary="Run AI investigation on an exception"
+)
+def investigate_exception(
+    id: str = Path(..., description="Exception ID"),
+    db: Session = Depends(get_db)
+):
+    return AIInvestigationService.investigate(db=db, exception_id=id)
