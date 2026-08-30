@@ -12,6 +12,7 @@ from app.config import settings
 from app.api.health import router as health_router
 from app.api.upload import router as upload_router
 from app.api.reconciliation import router as reconciliation_router
+from app.api.exceptions import router as exceptions_router
 from app.database.session import init_db
 
 # Initialize database schema on startup
@@ -38,6 +39,7 @@ app.add_middleware(
 app.include_router(health_router, prefix=settings.API_V1_STR, tags=["System"])
 app.include_router(upload_router, prefix=settings.API_V1_STR, tags=["Ingestion"])
 app.include_router(reconciliation_router, prefix=settings.API_V1_STR, tags=["Reconciliation"])
+app.include_router(exceptions_router, prefix=settings.API_V1_STR, tags=["Exceptions"])
 
 @app.get("/", tags=["Root"])
 def root():
