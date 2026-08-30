@@ -1,0 +1,201 @@
+payment_id,order_id,expected_status,expected_exception_type,expected_action,expected_root_cause,notes
+PAY_10001,ORD_50001,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10002,ORD_50002,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10003,ORD_50003,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10004,ORD_50004,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10005,ORD_50005,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10006,ORD_50006,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10007,ORD_50007,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10008,ORD_50008,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10009,ORD_50009,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10010,ORD_50010,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10011,ORD_50011,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 100.00 lower than expected after fees
+PAY_10012,ORD_50012,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10013,ORD_50013,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10014,ORD_50014,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10015,ORD_50015,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10016,ORD_50016,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10017,ORD_50017,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10018,ORD_50018,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10019,ORD_50019,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10020,ORD_50020,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10021,ORD_50021,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10022,ORD_50022,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10023,ORD_50023,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10024,ORD_50024,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10025,ORD_50025,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10026,ORD_50026,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10027,ORD_50027,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10028,ORD_50028,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10029,ORD_50029,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10030,ORD_50030,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10031,ORD_50031,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10032,ORD_50032,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10033,ORD_50033,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10034,ORD_50034,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10035,ORD_50035,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10036,ORD_50036,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10037,ORD_50037,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10038,ORD_50038,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10039,ORD_50039,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10040,ORD_50040,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10041,ORD_50041,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10042,ORD_50042,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10043,ORD_50043,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10044,ORD_50044,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 250.00 lower than expected after fees
+PAY_10045,ORD_50045,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10046,ORD_50046,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10047,ORD_50047,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10048,ORD_50048,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10049,ORD_50049,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10050,ORD_50050,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10051,ORD_50051,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10052,ORD_50052,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10053,ORD_50053,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10054,ORD_50054,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10055,ORD_50055,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10056,ORD_50056,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10057,ORD_50057,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10058,ORD_50058,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10059,ORD_50059,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10060,ORD_50060,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10061,ORD_50061,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10062,ORD_50062,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10063,ORD_50063,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10064,ORD_50064,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10065,ORD_50065,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 100.00 lower than expected after fees
+PAY_10066,ORD_50066,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10067,ORD_50067,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10068,ORD_50068,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10069,ORD_50069,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10070,ORD_50070,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10071,ORD_50071,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 250.00 lower than expected after fees
+PAY_10072,ORD_50072,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10073,ORD_50073,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10074,ORD_50074,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10075,ORD_50075,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10076,ORD_50076,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10077,ORD_50077,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10078,ORD_50078,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10079,ORD_50079,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10080,ORD_50080,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10081,ORD_50081,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10082,ORD_50082,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10083,ORD_50083,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10084,ORD_50084,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10085,ORD_50085,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 300.00 lower than expected after fees
+PAY_10086,ORD_50086,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10087,ORD_50087,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10088,ORD_50088,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 250.00 lower than expected after fees
+PAY_10089,ORD_50089,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10090,ORD_50090,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10091,ORD_50091,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10092,ORD_50092,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10093,ORD_50093,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10094,ORD_50094,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10095,ORD_50095,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10096,ORD_50096,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10097,ORD_50097,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10098,ORD_50098,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10099,ORD_50099,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10100,ORD_50100,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10101,ORD_50101,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10102,ORD_50102,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10103,ORD_50103,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10104,ORD_50104,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10105,ORD_50105,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10106,ORD_50106,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10107,ORD_50107,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10108,ORD_50108,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10109,ORD_50109,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10110,ORD_50110,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 300.00 lower than expected after fees
+PAY_10111,ORD_50111,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10112,ORD_50112,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10113,ORD_50113,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10114,ORD_50114,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10115,ORD_50115,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10116,ORD_50116,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 50.00 lower than expected after fees
+PAY_10117,ORD_50117,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 300.00 lower than expected after fees
+PAY_10118,ORD_50118,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 300.00 lower than expected after fees
+PAY_10119,ORD_50119,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10120,ORD_50120,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10121,ORD_50121,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10122,ORD_50122,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10123,ORD_50123,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10124,ORD_50124,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10125,ORD_50125,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10126,ORD_50126,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10127,ORD_50127,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10128,ORD_50128,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10129,ORD_50129,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10130,ORD_50130,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10131,ORD_50131,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10132,ORD_50132,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10133,ORD_50133,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10134,ORD_50134,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10135,ORD_50135,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10136,ORD_50136,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10137,ORD_50137,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10138,ORD_50138,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10139,ORD_50139,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10140,ORD_50140,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10141,ORD_50141,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10142,ORD_50142,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10143,ORD_50143,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10144,ORD_50144,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10145,ORD_50145,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10146,ORD_50146,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10147,ORD_50147,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 250.00 lower than expected after fees
+PAY_10148,ORD_50148,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10149,ORD_50149,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10150,ORD_50150,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10151,ORD_50151,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10152,ORD_50152,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10153,ORD_50153,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10154,ORD_50154,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10155,ORD_50155,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10156,ORD_50156,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10157,ORD_50157,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10158,ORD_50158,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10159,ORD_50159,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10160,ORD_50160,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10161,ORD_50161,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10162,ORD_50162,EXCEPTION,REFERENCE_MISMATCH,HUMAN_REVIEW,REFERENCE_MISMATCH_DETECTED,"Payment ID altered in settlement record, but order reference and amount correspond"
+PAY_10163,ORD_50163,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10164,ORD_50164,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10165,ORD_50165,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10166,ORD_50166,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10167,ORD_50167,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10168,ORD_50168,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10169,ORD_50169,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10170,ORD_50170,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10171,ORD_50171,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10172,ORD_50172,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10173,ORD_50173,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10174,ORD_50174,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10175,ORD_50175,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10176,ORD_50176,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10177,ORD_50177,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 300.00 lower than expected after fees
+PAY_10178,ORD_50178,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10179,ORD_50179,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10180,ORD_50180,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10181,ORD_50181,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10182,ORD_50182,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10183,ORD_50183,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10184,ORD_50184,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10185,ORD_50185,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10186,ORD_50186,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10187,ORD_50187,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv
+PAY_10188,ORD_50188,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10189,ORD_50189,EXCEPTION,AMOUNT_MISMATCH,HUMAN_REVIEW,UNEXPLAINED_AMOUNT_DIFFERENCE,Settlement amount is 150.00 lower than expected after fees
+PAY_10190,ORD_50190,EXCEPTION,DUPLICATE,HUMAN_REVIEW,DUPLICATE_SETTLEMENT_RECORD,Multiple settlement records exist for single payment ID
+PAY_10191,ORD_50191,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10192,ORD_50192,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10193,ORD_50193,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10194,ORD_50194,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10195,ORD_50195,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10196,ORD_50196,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10197,ORD_50197,EXCEPTION,UNKNOWN,HUMAN_REVIEW,AMBIGUOUS_ANOMALY,Ambiguous financial state: negative fee and settlement amount exceeds payment
+PAY_10198,ORD_50198,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10199,ORD_50199,MATCHED,None,AUTO_RESOLVE,STANDARD_SETTLEMENT,Standard match: payment equals settlement plus processing fee
+PAY_10200,ORD_50200,EXCEPTION,MISSING_SETTLEMENT,HUMAN_REVIEW,UNSETTLED_TRANSACTION,Payment exists in payments.csv but has no settlement record in settlements.csv

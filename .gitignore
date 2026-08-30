@@ -52,13 +52,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# IDE & OS
+# IDE, OS, Temp Files
 .vscode/
 .idea/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+~$*
 
 # Data artifacts
 data/uploads/
