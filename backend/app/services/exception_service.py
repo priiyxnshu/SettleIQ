@@ -7,6 +7,7 @@ from app.models import (
     PaymentRecord,
     SettlementRecord,
     FeeRecord,
+    ReviewDecision,
     ExceptionType,
     ExceptionStatus
 )
@@ -16,7 +17,8 @@ from app.schemas.exception import (
     ExceptionDetailResponse,
     PaymentDetail,
     SettlementDetail,
-    FeeDetail
+    FeeDetail,
+    ReviewDecisionDetail
 )
 
 class ExceptionService:
@@ -114,6 +116,19 @@ class ExceptionService:
                 FeeRecord.payment_id == exc.source_reference
             ).all()
 
+        # 4. Fetch persisted decision if present
+        decision_detail = None
+        if exc.decision:
+            decision_detail = ReviewDecisionDetail(
+                id=exc.decision.id,
+                recommended_action=exc.decision.recommended_action,
+                decision_outcome=exc.decision.decision_outcome,
+                confidence=exc.decision.confidence,
+                decided_by=exc.decision.decided_by,
+                reason=exc.decision.reason,
+                created_at=exc.decision.created_at
+            )
+
         # Build response
         payment_detail = PaymentDetail(
             id=payment_record.id,
@@ -161,5 +176,6 @@ class ExceptionService:
             detected_at=exc.detected_at,
             payment=payment_detail,
             settlements=settlement_details,
-            fees=fee_details
+            fees=fee_details,
+            decision=decision_detail
         )

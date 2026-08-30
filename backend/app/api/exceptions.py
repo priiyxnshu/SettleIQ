@@ -1,4 +1,4 @@
-﻿from typing import Optional
+﻿from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.orm import Session
 from app.database.session import get_db
@@ -7,10 +7,14 @@ from app.schemas.exception import ExceptionListResponse, ExceptionDetailResponse
 from app.schemas.evidence import EvidencePackage
 from app.schemas.ai import AIInvestigationResult
 from app.schemas.guardrails import DecisionResponse
+from app.schemas.review import HumanReviewRequest, HumanReviewResponse
+from app.schemas.audit import AuditLogItem
 from app.services.exception_service import ExceptionService
 from app.services.evidence_builder import EvidenceBuilder
 from app.services.ai_investigation_service import AIInvestigationService
 from app.guardrails.engine import GuardrailEngine
+from app.services.review_service import ReviewService
+from app.services.audit_service import AuditService
 
 router = APIRouter()
 
@@ -39,7 +43,7 @@ def list_exceptions(
 @router.get(
     "/exceptions/{id}",
     response_model=ExceptionDetailResponse,
-    summary="Get single exception details with related financial records"
+    summary="Get single exception details with related financial records and decision context"
 )
 def get_exception(
     id: str = Path(..., description="Exception ID"),
@@ -79,3 +83,26 @@ def evaluate_exception_guardrails(
     db: Session = Depends(get_db)
 ):
     return GuardrailEngine.evaluate_exception(db=db, exception_id=id)
+
+@router.post(
+    "/exceptions/{id}/review",
+    response_model=HumanReviewResponse,
+    summary="Submit human review decision on an exception in HUMAN_REVIEW status"
+)
+def review_exception(
+    id: str = Path(..., description="Exception ID"),
+    request: HumanReviewRequest = ...,
+    db: Session = Depends(get_db)
+):
+    return ReviewService.apply_review(db=db, exception_id=id, request=request)
+
+@router.get(
+    "/exceptions/{id}/audit",
+    response_model=List[AuditLogItem],
+    summary="Get full chronological audit trail for a specific exception"
+)
+def get_exception_audit_trail(
+    id: str = Path(..., description="Exception ID"),
+    db: Session = Depends(get_db)
+):
+    return AuditService.get_exception_history(db=db, exception_id=id)

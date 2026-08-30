@@ -1,7 +1,7 @@
 ﻿from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
-from app.models.enums import ExceptionType, ExceptionStatus
+from app.models.enums import ExceptionType, ExceptionStatus, DecisionOutcome
 
 class PaymentDetail(BaseModel):
     id: str
@@ -32,6 +32,15 @@ class FeeDetail(BaseModel):
     fee_type: str
     fee_date: Optional[datetime] = None
 
+class ReviewDecisionDetail(BaseModel):
+    id: str
+    recommended_action: Optional[str] = None
+    decision_outcome: DecisionOutcome
+    confidence: Optional[float] = None
+    decided_by: str
+    reason: Optional[str] = None
+    created_at: datetime
+
 class ExceptionListItem(BaseModel):
     id: str
     reconciliation_run_id: str
@@ -58,3 +67,4 @@ class ExceptionDetailResponse(BaseModel):
     payment: Optional[PaymentDetail] = None
     settlements: List[SettlementDetail] = []
     fees: List[FeeDetail] = []
+    decision: Optional[ReviewDecisionDetail] = None
