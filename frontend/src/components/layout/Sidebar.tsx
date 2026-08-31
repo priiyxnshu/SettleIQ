@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React from 'react';
 import {
   LayoutDashboard,
   UploadCloud,
@@ -7,8 +7,7 @@ import {
   CheckSquare,
   FileText,
   ShieldCheck,
-  UserCheck,
-  ArrowLeftRight
+  LogOut
 } from 'lucide-react';
 import type { NavTab } from '../../types';
 import { useUser } from '../../context/UserContext';
@@ -25,8 +24,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   reviewQueueCount = 0
 }) => {
-  const { currentUser, switchUser, allUsers } = useUser();
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const { currentUser, logout } = useUser();
+
+  if (!currentUser) return null;
 
   const allNavItems: { id: NavTab; label: string; icon: React.ElementType; badge?: number }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -99,84 +99,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Demo RBAC User Switcher Section */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950/80 relative">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center space-x-1">
-            <UserCheck className="h-3 w-3" />
-            <span>Active Demo Role</span>
-          </span>
+      {/* Active User Card & Logout Button */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950/80">
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/70 border border-slate-800">
+          <div className="flex items-center space-x-2.5 overflow-hidden">
+            <div className={`h-8 w-8 rounded-lg border shrink-0 flex items-center justify-center text-xs font-bold ${
+              currentUser.roleCategory === 'Maker'
+                ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
+            }`}>
+              {currentUser.initials}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
+              <p className="text-[10px] text-slate-400 truncate">{currentUser.roleTitle}</p>
+            </div>
+          </div>
+
           <button
-            onClick={() => setShowUserDropdown(!showUserDropdown)}
-            className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-slate-900 transition"
+            onClick={logout}
+            title="Log out and switch profile"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition shrink-0"
           >
-            <ArrowLeftRight className="h-2.5 w-2.5" />
-            <span>Switch Role</span>
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
-
-        {/* User Card */}
-        <div 
-          onClick={() => setShowUserDropdown(!showUserDropdown)}
-          className="flex items-center space-x-3 p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 cursor-pointer hover:border-slate-700 transition"
-        >
-          <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold ${
-            currentUser.roleCategory === 'Maker'
-              ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-              : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
-          }`}>
-            {currentUser.initials}
-          </div>
-          <div className="overflow-hidden flex-1">
-            <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
-            <p className="text-[10px] text-slate-400 truncate">{currentUser.roleTitle}</p>
-          </div>
-        </div>
-
-        {/* Dropdown Switcher */}
-        {showUserDropdown && (
-          <div className="absolute bottom-20 left-4 right-4 bg-slate-900 border border-slate-800 rounded-xl p-2 shadow-2xl z-30 space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
-            <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-              Select Demo User
-            </div>
-            {allUsers.map((user) => {
-              const isSelected = user.id === currentUser.id;
-              return (
-                <button
-                  key={user.id}
-                  onClick={() => {
-                    switchUser(user.id as 'analyst' | 'manager');
-                    setShowUserDropdown(false);
-                  }}
-                  className={`w-full text-left p-2 rounded-lg text-xs transition flex items-center space-x-2.5 ${
-                    isSelected
-                      ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
-                >
-                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-300'
-                  }`}>
-                    {user.initials}
-                  </div>
-                  <div className="overflow-hidden flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="truncate">{user.name}</span>
-                      <span className={`text-[9px] px-1 rounded font-mono ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
-                      }`}>
-                        {user.roleCategory}
-                      </span>
-                    </div>
-                    <p className={`text-[10px] truncate ${isSelected ? 'text-indigo-100' : 'text-slate-500'}`}>
-                      {user.roleTitle}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
     </aside>
   );

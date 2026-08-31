@@ -29,6 +29,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onSelectException
 }) => {
   const { currentUser } = useUser();
+
+  if (!currentUser) return null;
+
   const isAnalyst = currentUser.role === 'OPERATIONS_ANALYST';
   const isManager = currentUser.role === 'RECONCILIATION_MANAGER';
 

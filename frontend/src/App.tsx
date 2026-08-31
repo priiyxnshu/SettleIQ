@@ -3,6 +3,7 @@ import type { NavTab, HealthStatus, DashboardStats } from './types';
 import { checkBackendHealth, getDashboardMetrics } from './services/api';
 import { UserProvider, useUser } from './context/UserContext';
 
+import { ProfileSelectionView } from './components/auth/ProfileSelectionView';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { DashboardView } from './components/dashboard/DashboardView';
@@ -12,7 +13,6 @@ import { ExceptionsView } from './components/exceptions/ExceptionsView';
 import { ReviewQueueView } from './components/review/ReviewQueueView';
 import { AuditLogsView } from './components/audit/AuditLogsView';
 import { ExceptionDetailModal } from './components/exceptions/ExceptionDetailModal';
-import { AccessRestrictedView } from './components/common/AccessRestrictedView';
 
 const AppContent: React.FC = () => {
   const { currentUser, hasPermission } = useUser();
@@ -22,9 +22,9 @@ const AppContent: React.FC = () => {
   const [selectedExceptionId, setSelectedExceptionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // If active tab is not permitted for the newly switched user, automatically redirect to dashboard
+  // If active tab is not permitted for the selected user, automatically reset to dashboard
   useEffect(() => {
-    if (!hasPermission(activeTab)) {
+    if (currentUser && !hasPermission(activeTab)) {
       setActiveTab('dashboard');
     }
   }, [currentUser, activeTab, hasPermission]);
@@ -46,10 +46,17 @@ const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    if (currentUser) {
+      fetchStats();
+      const interval = setInterval(fetchStats, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [currentUser]);
+
+  // If no profile is selected, render the Profile Selection Screen
+  if (!currentUser) {
+    return <ProfileSelectionView />;
+  }
 
   const titles: Record<NavTab, { title: string; subtitle: string }> = {
     dashboard: {
@@ -100,66 +107,55 @@ const AppContent: React.FC = () => {
 
         <main className="flex-1 overflow-y-auto p-8 bg-slate-950">
           <div className="max-w-7xl mx-auto">
-            {/* Route Guard: If tab is not permitted, show Access Restricted */}
-            {!hasPermission(activeTab) ? (
-              <AccessRestrictedView
-                attemptedTab={activeTab}
-                onGoHome={() => setActiveTab('dashboard')}
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                stats={dashboardStats}
+                loading={loading}
+                onNavigate={setActiveTab}
+                onSelectException={(id) => {
+                  if (hasPermission('exceptions')) {
+                    setSelectedExceptionId(id);
+                  }
+                }}
               />
-            ) : (
-              <>
-                {activeTab === 'dashboard' && (
-                  <DashboardView
-                    stats={dashboardStats}
-                    loading={loading}
-                    onNavigate={setActiveTab}
-                    onSelectException={(id) => {
-                      if (hasPermission('exceptions')) {
-                        setSelectedExceptionId(id);
-                      }
-                    }}
-                  />
-                )}
+            )}
 
-                {activeTab === 'upload' && (
-                  <UploadView
-                    onReconciliationCompleted={() => {
-                      fetchStats();
-                      // Operations Analyst goes to Dashboard; Manager (if allowed) can go to Reconciliation
-                      if (hasPermission('reconciliation')) {
-                        setActiveTab('reconciliation');
-                      } else {
-                        setActiveTab('dashboard');
-                      }
-                    }}
-                  />
-                )}
+            {activeTab === 'upload' && hasPermission('upload') && (
+              <UploadView
+                onReconciliationCompleted={() => {
+                  fetchStats();
+                  if (hasPermission('reconciliation')) {
+                    setActiveTab('reconciliation');
+                  } else {
+                    setActiveTab('dashboard');
+                  }
+                }}
+              />
+            )}
 
-                {activeTab === 'reconciliation' && (
-                  <ReconciliationView
-                    stats={dashboardStats}
-                    onNavigate={setActiveTab}
-                    onRefresh={fetchStats}
-                  />
-                )}
+            {activeTab === 'reconciliation' && hasPermission('reconciliation') && (
+              <ReconciliationView
+                stats={dashboardStats}
+                onNavigate={setActiveTab}
+                onRefresh={fetchStats}
+              />
+            )}
 
-                {activeTab === 'exceptions' && (
-                  <ExceptionsView
-                    onSelectException={setSelectedExceptionId}
-                  />
-                )}
+            {activeTab === 'exceptions' && hasPermission('exceptions') && (
+              <ExceptionsView
+                onSelectException={setSelectedExceptionId}
+              />
+            )}
 
-                {activeTab === 'review' && (
-                  <ReviewQueueView
-                    onRefreshParent={fetchStats}
-                    onSelectException={setSelectedExceptionId}
-                  />
-                )}
+            {activeTab === 'review' && hasPermission('review') && (
+              <ReviewQueueView
+                onRefreshParent={fetchStats}
+                onSelectException={setSelectedExceptionId}
+              />
+            )}
 
-                {activeTab === 'audit' && (
-                  <AuditLogsView />
-                )}
-              </>
+            {activeTab === 'audit' && hasPermission('audit') && (
+              <AuditLogsView />
             )}
           </div>
         </main>

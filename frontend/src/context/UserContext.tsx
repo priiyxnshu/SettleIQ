@@ -25,8 +25,9 @@ export const DEMO_USERS: Record<string, DemoUser> = {
 };
 
 interface UserContextType {
-  currentUser: DemoUser;
-  switchUser: (userId: 'analyst' | 'manager') => void;
+  currentUser: DemoUser | null;
+  selectProfile: (userId: 'analyst' | 'manager') => void;
+  logout: () => void;
   allUsers: DemoUser[];
   hasPermission: (tab: NavTab) => boolean;
 }
@@ -34,23 +35,29 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default active user is Operations Analyst (Priyanshu Gupta)
-  const [currentUser, setCurrentUser] = useState<DemoUser>(() => {
+  // Persist selected demo profile in localStorage across page refreshes
+  const [currentUser, setCurrentUser] = useState<DemoUser | null>(() => {
     const saved = localStorage.getItem('settleiq_demo_user');
     if (saved && DEMO_USERS[saved]) {
       return DEMO_USERS[saved];
     }
-    return DEMO_USERS.analyst;
+    return null;
   });
 
-  const switchUser = (userId: 'analyst' | 'manager') => {
+  const selectProfile = (userId: 'analyst' | 'manager') => {
     if (DEMO_USERS[userId]) {
       setCurrentUser(DEMO_USERS[userId]);
       localStorage.setItem('settleiq_demo_user', userId);
     }
   };
 
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('settleiq_demo_user');
+  };
+
   const hasPermission = (tab: NavTab): boolean => {
+    if (!currentUser) return false;
     return currentUser.allowedTabs.includes(tab);
   };
 
@@ -58,7 +65,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <UserContext.Provider
       value={{
         currentUser,
-        switchUser,
+        selectProfile,
+        logout,
         allUsers: Object.values(DEMO_USERS),
         hasPermission
       }}

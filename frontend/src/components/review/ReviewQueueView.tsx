@@ -35,12 +35,14 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   const [submitting, setSubmitting] = useState(false);
 
   const [reviewNotes, setReviewNotes] = useState('');
-  const [operatorName, setOperatorName] = useState(currentUser.name);
+  const [operatorName, setOperatorName] = useState(currentUser?.name || 'Reconciliation Manager');
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
   const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    setOperatorName(currentUser.name);
+    if (currentUser) {
+      setOperatorName(currentUser.name);
+    }
   }, [currentUser]);
 
   const fetchQueue = async () => {
@@ -116,6 +118,8 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
       setSubmitting(false);
     }
   };
+
+  if (!currentUser) return null;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
