@@ -6,10 +6,12 @@ import {
   MessageSquare,
   RefreshCw,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from 'lucide-react';
 import type { ExceptionListItem, ExceptionDetailResponse } from '../../types';
 import { getExceptions, getExceptionDetail, submitHumanReview } from '../../services/api';
+import { useUser } from '../../context/UserContext';
 import { ExceptionTypeBadge } from '../common/Badge';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { EmptyState } from '../common/EmptyState';
@@ -23,6 +25,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   onRefreshParent,
   onSelectException
 }) => {
+  const { currentUser } = useUser();
   const [queueItems, setQueueItems] = useState<ExceptionListItem[]>([]);
   const [selectedExcId, setSelectedExcId] = useState<string | null>(null);
   const [selectedDetail, setSelectedDetail] = useState<ExceptionDetailResponse | null>(null);
@@ -32,9 +35,13 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   const [submitting, setSubmitting] = useState(false);
 
   const [reviewNotes, setReviewNotes] = useState('');
-  const [operatorName, setOperatorName] = useState('Finance Operator');
+  const [operatorName, setOperatorName] = useState(currentUser.name);
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
   const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setOperatorName(currentUser.name);
+  }, [currentUser]);
 
   const fetchQueue = async () => {
     setLoading(true);
@@ -126,13 +133,19 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={fetchQueue}
-          className="flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 transition"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
-          <span>Refresh Queue</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
+            <UserCheck className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Reviewer: <strong>{currentUser.name}</strong></span>
+          </div>
+          <button
+            onClick={fetchQueue}
+            className="flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 transition"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
+            <span>Refresh Queue</span>
+          </button>
+        </div>
       </div>
 
       {actionSuccessMessage && (
@@ -246,15 +259,15 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
                       <MessageSquare className="h-3.5 w-3.5 text-indigo-400" />
-                      <span>Operator Review Notes (Optional)</span>
+                      <span>Review Notes & Rationale (Optional)</span>
                     </label>
                     <div className="flex items-center space-x-2 text-xs">
-                      <span className="text-slate-500">Operator:</span>
+                      <span className="text-slate-500">Signing as:</span>
                       <input
                         type="text"
                         value={operatorName}
                         onChange={(e) => setOperatorName(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        className="bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-semibold"
                       />
                     </div>
                   </div>

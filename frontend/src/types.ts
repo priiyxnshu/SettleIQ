@@ -28,6 +28,21 @@ export type AuditAction =
   | 'HUMAN_APPROVED'
   | 'HUMAN_REJECTED';
 
+export type NavTab = 'dashboard' | 'upload' | 'reconciliation' | 'exceptions' | 'review' | 'audit';
+
+export type UserRole = 'OPERATIONS_ANALYST' | 'RECONCILIATION_MANAGER';
+
+export interface DemoUser {
+  id: string;
+  name: string;
+  role: UserRole;
+  roleTitle: string;
+  roleCategory: 'Maker' | 'Checker';
+  initials: string;
+  allowedTabs: NavTab[];
+  description: string;
+}
+
 export interface HealthStatus {
   status: string;
   service: string;
