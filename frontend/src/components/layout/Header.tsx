@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { RefreshCw, Activity } from 'lucide-react';
 import type { HealthStatus } from '../../types';
 

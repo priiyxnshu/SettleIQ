@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { ExceptionType, ExceptionStatus, AuditAction } from '../../types';
 
 export const ExceptionTypeBadge: React.FC<{ type: ExceptionType; className?: string }> = ({ type, className = '' }) => {

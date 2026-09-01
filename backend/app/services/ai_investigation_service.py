@@ -1,4 +1,4 @@
-﻿from typing import Optional, List
+from typing import Optional, List
 import logging
 from sqlalchemy.orm import Session
 from pydantic import ValidationError

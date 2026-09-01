@@ -1,4 +1,4 @@
-﻿from typing import Dict
+from typing import Dict
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database.session import get_db

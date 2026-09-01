@@ -1,4 +1,4 @@
-﻿export type ExceptionType = 
+export type ExceptionType = 
   | 'AMOUNT_MISMATCH'
   | 'MISSING_SETTLEMENT'
   | 'DUPLICATE'

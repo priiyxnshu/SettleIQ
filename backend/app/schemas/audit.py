@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 from typing import List, Optional, Any
 from pydantic import BaseModel
 from app.models.enums import AuditAction

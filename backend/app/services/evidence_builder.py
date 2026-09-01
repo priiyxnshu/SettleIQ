@@ -1,4 +1,4 @@
-﻿from typing import List
+from typing import List
 from sqlalchemy.orm import Session
 from app.services.exception_service import ExceptionService
 from app.schemas.evidence import (

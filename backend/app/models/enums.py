@@ -1,4 +1,4 @@
-﻿import enum
+import enum
 
 class UploadFileType(str, enum.Enum):
     PAYMENTS = "PAYMENTS"

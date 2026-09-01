@@ -1,4 +1,4 @@
-﻿from typing import List, Optional, Dict
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 from app.models.enums import DecisionOutcome
 

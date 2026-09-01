@@ -1,4 +1,4 @@
-﻿import io
+import io
 import csv
 import json
 from datetime import datetime, timezone

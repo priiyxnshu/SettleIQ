@@ -1,4 +1,4 @@
-﻿from app.database.base import Base
+from app.database.base import Base
 from app.models.enums import (
     UploadFileType,
     UploadStatus,

@@ -1,4 +1,4 @@
-﻿import json
+import json
 from app.schemas.evidence import EvidencePackage
 
 SYSTEM_PROMPT = """You are SettleIQ AI Financial Investigator.

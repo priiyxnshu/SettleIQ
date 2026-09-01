@@ -1,4 +1,4 @@
-﻿from typing import Optional, List
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.orm import Session
 from app.database.session import get_db

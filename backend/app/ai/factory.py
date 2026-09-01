@@ -1,4 +1,4 @@
-﻿from app.config import settings
+from app.config import settings
 from app.ai.provider import BaseLLMProvider, GeminiProvider, DeterministicProvider
 
 def get_llm_provider() -> BaseLLMProvider:

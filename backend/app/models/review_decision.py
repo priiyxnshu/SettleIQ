@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Float, Enum as SQLEnum
 from sqlalchemy.orm import relationship

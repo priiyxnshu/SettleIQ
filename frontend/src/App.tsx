@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { NavTab } from './components/layout/Sidebar';
 import type { HealthStatus, DashboardStats } from './types';
 import { checkBackendHealth, getDashboardMetrics } from './services/api';

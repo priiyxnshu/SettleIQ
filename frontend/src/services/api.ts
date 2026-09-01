@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   HealthStatus,
   DashboardStats,
   UploadResponse,
