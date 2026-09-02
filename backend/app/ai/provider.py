@@ -1,4 +1,4 @@
-﻿import json
+import json
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List
 import httpx
@@ -70,16 +70,40 @@ class DeterministicProvider(BaseLLMProvider):
             }
 
         elif exc_type == ExceptionType.REFERENCE_MISMATCH:
-            return {
-                "exception_id": package.exception_id,
-                "exception_type": exc_type.value,
-                "root_cause": "REFERENCE_MISMATCH_DETECTED",
-                "confidence": 0.95,
-                "recommended_action": "HUMAN_REVIEW",
-                "explanation": f"Settlement was linked via order reference rather than direct payment ID. Net settlement {facts.total_settled_amount:.2f} corresponds to payment {facts.payment_amount:.2f}.",
-                "evidence_ids": evidence_ids,
-                "model_used": "deterministic-engine"
-            }
+            is_valid_ref_mismatch = (
+                facts.has_alternative_reference and
+                facts.settlement_count == 1 and
+                facts.fee_count <= 1 and
+                facts.payment_amount > 0 and
+                facts.total_settled_amount > 0 and
+                abs(facts.discrepancy_amount) <= 0.01 and
+                not facts.is_negative_fee and
+                not facts.is_pending_settlement
+            )
+
+            if is_valid_ref_mismatch:
+                order_id_str = package.financial_records.payment.order_id if package.financial_records.payment else "UNKNOWN"
+                return {
+                    "exception_id": package.exception_id,
+                    "exception_type": exc_type.value,
+                    "root_cause": "CORRELATED_ORDER_REFERENCE",
+                    "confidence": 0.95,
+                    "recommended_action": "AUTO_RESOLVE",
+                    "explanation": f"Settlement verified via order reference (SR_{order_id_str}) with zero net financial discrepancy ({facts.discrepancy_amount:.2f}) after fees.",
+                    "evidence_ids": evidence_ids,
+                    "model_used": "deterministic-engine"
+                }
+            else:
+                return {
+                    "exception_id": package.exception_id,
+                    "exception_type": exc_type.value,
+                    "root_cause": "REFERENCE_MISMATCH_DETECTED",
+                    "confidence": 0.95,
+                    "recommended_action": "HUMAN_REVIEW",
+                    "explanation": f"Settlement was linked via order reference, but requires human review (discrepancy={facts.discrepancy_amount:.2f}, alternative_ref={facts.has_alternative_reference}).",
+                    "evidence_ids": evidence_ids,
+                    "model_used": "deterministic-engine"
+                }
 
         else:  # UNKNOWN
             return {

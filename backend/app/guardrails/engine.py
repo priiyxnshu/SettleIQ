@@ -1,4 +1,4 @@
-﻿import json
+import json
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -61,8 +61,7 @@ class GuardrailEngine:
             all(eid in valid_evidence_ids for eid in ai_result.evidence_ids)
         )
 
-        # Check 4: Explicit Processing-Fee Rule
-        # Only AMOUNT_MISMATCH where shortfall (P - S) is 100% accounted for by recorded processing fee (F)
+        # Check 4: Explicit Deterministic Policies
         facts = package.calculated_facts
         p_amt = facts.payment_amount
         s_amt = facts.total_settled_amount
@@ -70,10 +69,24 @@ class GuardrailEngine:
         shortfall = round(p_amt - s_amt, 2)
 
         check_known_rule = False
+
+        # Policy A: AMOUNT_MISMATCH where shortfall (P - S) is 100% accounted for by recorded processing fee (F)
         if exc.exception_type == ExceptionType.AMOUNT_MISMATCH and ai_result.root_cause == "PROCESSING_FEE":
             if facts.settlement_count == 1 and facts.fee_count == 1:
                 if s_amt > 0 and f_amt > 0 and abs(shortfall - f_amt) <= 0.01:
                     check_known_rule = True
+
+        # Policy B: REFERENCE_MISMATCH where alternate reference is verified and net discrepancy is zero
+        elif exc.exception_type == ExceptionType.REFERENCE_MISMATCH and ai_result.root_cause == "CORRELATED_ORDER_REFERENCE":
+            if (
+                facts.has_alternative_reference and
+                facts.settlement_count == 1 and
+                facts.fee_count <= 1 and
+                p_amt > 0 and
+                s_amt > 0 and
+                abs(facts.discrepancy_amount) <= 0.01
+            ):
+                check_known_rule = True
 
         # Check 5: Sanity and Safety Check
         check_sanity = (
@@ -101,7 +114,10 @@ class GuardrailEngine:
         if all_passed:
             outcome = DecisionOutcome.AUTO_RESOLVE
             new_status = ExceptionStatus.AUTO_RESOLVED
-            reason = f"Auto-resolve approved: Discrepancy of {shortfall:.2f} is fully explained by recorded processing fee ({f_amt:.2f}) and confidence ({ai_result.confidence:.2f}) >= {cls.CONFIDENCE_THRESHOLD:.2f}."
+            if exc.exception_type == ExceptionType.REFERENCE_MISMATCH:
+                reason = f"Auto-resolve approved: Order reference correlation verified with zero net financial discrepancy ({facts.discrepancy_amount:.2f}) and confidence ({ai_result.confidence:.2f}) >= {cls.CONFIDENCE_THRESHOLD:.2f}."
+            else:
+                reason = f"Auto-resolve approved: Discrepancy of {shortfall:.2f} is fully explained by recorded processing fee ({f_amt:.2f}) and confidence ({ai_result.confidence:.2f}) >= {cls.CONFIDENCE_THRESHOLD:.2f}."
             action_type = AuditAction.AUTO_RESOLVED
         else:
             outcome = DecisionOutcome.HUMAN_REVIEW

@@ -1,4 +1,4 @@
-﻿import json
+import json
 from app.schemas.evidence import EvidencePackage
 
 SYSTEM_PROMPT = """You are SettleIQ AI Financial Investigator.
@@ -8,7 +8,7 @@ STRICT INVESTIGATION RULES:
 1. Grounding: You must use only the facts and numbers present in the provided evidence package.
 2. Evidence IDs: In "evidence_ids", you MUST only reference identifiers that are present in the provided evidence package (e.g. valid payment_id, settlement_id, fee_id). Never invent identifiers.
 3. No Hallucination: Do not invent missing records, fees, amounts, or external explanations.
-4. Advisory Recommendation: Provide an advisory recommendation ("AUTO_RESOLVE" or "HUMAN_REVIEW"). Note that this is only an advisory recommendation and will not directly execute changes.
+4. Advisory Recommendation: Provide an advisory recommendation ("AUTO_RESOLVE" or "HUMAN_REVIEW"). Recommend AUTO_RESOLVE only when: (a) for AMOUNT_MISMATCH, the shortfall is 100% explained by the processing fee with zero discrepancy (root_cause: PROCESSING_FEE); or (b) for REFERENCE_MISMATCH, the settlement reference correlates to the order ID (SR_<order_id>) with zero net financial discrepancy after fees (root_cause: CORRELATED_ORDER_REFERENCE). For all other exceptions or unexplained discrepancies, recommend HUMAN_REVIEW. Note that this is only an advisory recommendation and will not directly execute changes.
 5. Structured Output: You MUST return a single valid JSON object strictly conforming to the required schema. Do not output markdown fences or explanatory text outside the JSON object.
 
 JSON OUTPUT SCHEMA:

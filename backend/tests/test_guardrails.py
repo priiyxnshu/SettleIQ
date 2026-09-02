@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -16,6 +16,9 @@ from app.database.base import Base
 from app.database.session import get_db
 from app.models import (
     ExceptionRecord,
+    PaymentRecord,
+    SettlementRecord,
+    FeeRecord,
     ReviewDecision,
     AuditLog,
     ExceptionStatus,
@@ -224,3 +227,119 @@ def test_evaluate_all_endpoint(populated_client):
     open_count = db.query(ExceptionRecord).filter_by(reconciliation_run_id=run_id, status=ExceptionStatus.OPEN).count()
     assert open_count == 0
     db.close()
+
+
+def test_guardrail_auto_resolve_on_verified_reference_mismatch(populated_client):
+    client, Session, _ = populated_client
+    db = Session()
+
+    # Find a REFERENCE_MISMATCH exception
+    exc = db.query(ExceptionRecord).filter_by(exception_type=ExceptionType.REFERENCE_MISMATCH).first()
+    assert exc is not None
+
+    # Evaluate using default AI investigation & guardrails
+    decision = GuardrailEngine.evaluate_exception(
+        db=db,
+        exception_id=exc.id
+    )
+
+    # Verify Auto-Resolve Outcome
+    assert decision.decision_outcome == DecisionOutcome.AUTO_RESOLVE
+    assert decision.checks.recommendation_valid is True
+    assert decision.checks.confidence_passed is True
+    assert decision.checks.evidence_grounded is True
+    assert decision.checks.known_rule_satisfied is True
+    assert decision.checks.sanity_passed is True
+
+    # Verify DB persistence
+    updated_exc = db.query(ExceptionRecord).filter_by(id=exc.id).first()
+    assert updated_exc.status == ExceptionStatus.AUTO_RESOLVED
+
+    saved_decision = db.query(ReviewDecision).filter_by(exception_id=exc.id).first()
+    assert saved_decision.decision_outcome == DecisionOutcome.AUTO_RESOLVE
+    assert saved_decision.decided_by == "SYSTEM"
+
+    audit = db.query(AuditLog).filter_by(entity_id=exc.id, action_type=AuditAction.AUTO_RESOLVED).first()
+    assert audit is not None
+    db.close()
+
+
+def test_guardrail_human_review_on_reference_mismatch_with_residual_discrepancy(populated_client):
+    client, Session, _ = populated_client
+    db = Session()
+
+    exc = db.query(ExceptionRecord).filter_by(exception_type=ExceptionType.REFERENCE_MISMATCH).first()
+    assert exc is not None
+
+    # Introduce a residual discrepancy by altering the settlement amount
+    payment = db.query(PaymentRecord).filter_by(reconciliation_run_id=exc.reconciliation_run_id, payment_id=exc.source_reference).first()
+    expected_ref = f"SR_{payment.order_id}"
+    settlement = db.query(SettlementRecord).filter_by(reconciliation_run_id=exc.reconciliation_run_id, settlement_reference=expected_ref).first()
+    settlement.settlement_amount = float(settlement.settlement_amount) - 50.00
+    db.commit()
+
+    decision = GuardrailEngine.evaluate_exception(
+        db=db,
+        exception_id=exc.id
+    )
+
+    # Discrepancy > 0.01 must fail known_rule_satisfied and route to HUMAN_REVIEW
+    assert decision.decision_outcome == DecisionOutcome.HUMAN_REVIEW
+    assert decision.checks.known_rule_satisfied is False
+
+    updated_exc = db.query(ExceptionRecord).filter_by(id=exc.id).first()
+    assert updated_exc.status == ExceptionStatus.HUMAN_REVIEW
+    db.close()
+
+
+def test_guardrail_human_review_on_reference_mismatch_pending_settlement(populated_client):
+    client, Session, _ = populated_client
+    db = Session()
+
+    exc = db.query(ExceptionRecord).filter_by(exception_type=ExceptionType.REFERENCE_MISMATCH).first()
+    assert exc is not None
+
+    payment = db.query(PaymentRecord).filter_by(reconciliation_run_id=exc.reconciliation_run_id, payment_id=exc.source_reference).first()
+    expected_ref = f"SR_{payment.order_id}"
+    settlement = db.query(SettlementRecord).filter_by(reconciliation_run_id=exc.reconciliation_run_id, settlement_reference=expected_ref).first()
+    settlement.settlement_status = "PENDING"
+    db.commit()
+
+    decision = GuardrailEngine.evaluate_exception(
+        db=db,
+        exception_id=exc.id
+    )
+
+    # Pending settlement must fail sanity_passed and route to HUMAN_REVIEW
+    assert decision.decision_outcome == DecisionOutcome.HUMAN_REVIEW
+    assert decision.checks.sanity_passed is False
+
+    updated_exc = db.query(ExceptionRecord).filter_by(id=exc.id).first()
+    assert updated_exc.status == ExceptionStatus.HUMAN_REVIEW
+    db.close()
+
+
+def test_guardrail_human_review_on_reference_mismatch_negative_fee(populated_client):
+    client, Session, _ = populated_client
+    db = Session()
+
+    exc = db.query(ExceptionRecord).filter_by(exception_type=ExceptionType.REFERENCE_MISMATCH).first()
+    assert exc is not None
+
+    fee = db.query(FeeRecord).filter_by(reconciliation_run_id=exc.reconciliation_run_id, payment_id=exc.source_reference).first()
+    fee.fee_amount = -25.00
+    db.commit()
+
+    decision = GuardrailEngine.evaluate_exception(
+        db=db,
+        exception_id=exc.id
+    )
+
+    # Negative fee must fail sanity_passed and route to HUMAN_REVIEW
+    assert decision.decision_outcome == DecisionOutcome.HUMAN_REVIEW
+    assert decision.checks.sanity_passed is False
+
+    updated_exc = db.query(ExceptionRecord).filter_by(id=exc.id).first()
+    assert updated_exc.status == ExceptionStatus.HUMAN_REVIEW
+    db.close()
+
