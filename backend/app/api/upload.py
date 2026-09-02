@@ -1,7 +1,7 @@
-﻿from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db
-from app.schemas.ingestion import UploadResponse
+from app.schemas.ingestion import UploadResponse, UploadHistoryResponse
 from app.services.ingestion_service import IngestionService
 
 router = APIRouter()
@@ -38,3 +38,15 @@ async def upload_financial_data(
         fees_bytes=fee_bytes,
         fees_filename=fees_file.filename or "fees.csv"
     )
+
+@router.get(
+    "/upload/history",
+    response_model=UploadHistoryResponse,
+    summary="Get recent upload and reconciliation batches history"
+)
+def get_upload_history(
+    limit: int = Query(5, ge=1, le=50, description="Number of recent upload batches to retrieve"),
+    db: Session = Depends(get_db)
+):
+    return IngestionService.get_upload_history(db=db, limit=limit)
+

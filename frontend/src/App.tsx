@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
-import type { NavTab, HealthStatus, DashboardStats } from './types';
-import { checkBackendHealth, getDashboardMetrics } from './services/api';
+import React, { useState, useEffect } from 'react';
+import type { NavTab, DashboardStats } from './types';
+import { getDashboardMetrics } from './services/api';
 import { UserProvider, useUser } from './context/UserContext';
 
 import { ProfileSelectionView } from './components/auth/ProfileSelectionView';
@@ -17,10 +17,10 @@ import { ExceptionDetailModal } from './components/exceptions/ExceptionDetailMod
 const AppContent: React.FC = () => {
   const { currentUser, hasPermission } = useUser();
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
-  const [health, setHealth] = useState<HealthStatus | null>(null);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [selectedExceptionId, setSelectedExceptionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exceptionsRefreshKey] = useState(0);
 
   // If active tab is not permitted for the selected user, automatically reset to dashboard
   useEffect(() => {
@@ -30,16 +30,12 @@ const AppContent: React.FC = () => {
   }, [currentUser, activeTab, hasPermission]);
 
   const fetchStats = async () => {
-    setLoading(true);
     try {
-      const [h, s] = await Promise.allSettled([
-        checkBackendHealth(),
-        getDashboardMetrics()
-      ]);
-      if (h.status === 'fulfilled') setHealth(h.value);
-      if (s.status === 'fulfilled') setDashboardStats(s.value);
-    } catch {
-      // Handled silently
+      setLoading(true);
+      const data = await getDashboardMetrics();
+      setDashboardStats(data);
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
     } finally {
       setLoading(false);
     }
@@ -48,10 +44,8 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
       fetchStats();
-      const interval = setInterval(fetchStats, 30000);
-      return () => clearInterval(interval);
     }
-  }, [currentUser]);
+  }, [currentUser, activeTab]);
 
   // If no profile is selected, render the Profile Selection Screen
   if (!currentUser) {
@@ -60,33 +54,33 @@ const AppContent: React.FC = () => {
 
   const titles: Record<NavTab, { title: string; subtitle: string }> = {
     dashboard: {
-      title: 'Operational Dashboard',
-      subtitle: `${currentUser.roleCategory} Workspace: Real-time reconciliation metrics & operational status`
+      title: 'Dashboard',
+      subtitle: 'Overview of your reconciliation and exceptions'
     },
     upload: {
-      title: 'Upload Data Batches',
-      subtitle: 'Maker Workspace: Ingest raw Payments, Settlements, and Fees CSV files'
+      title: 'Upload Data',
+      subtitle: 'Upload payments, settlements, and fees'
     },
     reconciliation: {
-      title: 'Reconciliation Results',
-      subtitle: 'Checker Workspace: Deterministic matching breakdown and AI guardrail batch actions'
+      title: 'Reconciliation',
+      subtitle: ''
     },
     exceptions: {
-      title: 'Exceptions Management',
-      subtitle: 'Checker Workspace: Search and inspect identified financial discrepancies across canonical categories'
+      title: 'Exceptions',
+      subtitle: ''
     },
     review: {
-      title: 'Human Review Queue',
-      subtitle: 'Checker Workspace: Operator review queue for uncertain cases routed by deterministic guardrails'
+      title: 'Review Queue',
+      subtitle: 'Exceptions routed for human operator review'
     },
     audit: {
-      title: 'Audit & Compliance Logs',
-      subtitle: 'Compliance Workspace: Immutable record of every reconciliation run, guardrail decision, and human review action'
+      title: 'Audit Logs',
+      subtitle: 'Immutable record of reconciliation and review actions'
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
       {/* Persistent Navigation Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -96,16 +90,13 @@ const AppContent: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8fafc]">
         <Header
-          title={titles[activeTab]?.title || 'SettleIQ Platform'}
+          title={titles[activeTab]?.title || 'Dashboard'}
           subtitle={titles[activeTab]?.subtitle}
-          health={health}
-          loading={loading}
-          onRefresh={fetchStats}
         />
 
-        <main className="flex-1 overflow-y-auto p-8 bg-slate-950">
+        <main className="flex-1 overflow-y-auto p-8 bg-[#f8fafc]">
           <div className="max-w-7xl mx-auto">
             {activeTab === 'dashboard' && (
               <DashboardView
@@ -144,6 +135,11 @@ const AppContent: React.FC = () => {
             {activeTab === 'exceptions' && hasPermission('exceptions') && (
               <ExceptionsView
                 onSelectException={setSelectedExceptionId}
+                runId={dashboardStats?.latest_run_id || undefined}
+                refreshKey={exceptionsRefreshKey}
+                isInvestigated={Boolean(
+                  dashboardStats && (dashboardStats.auto_resolved_count + dashboardStats.human_review_count) > 0
+                )}
               />
             )}
 

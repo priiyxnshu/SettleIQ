@@ -1,7 +1,8 @@
-﻿import type {
+import type {
   HealthStatus,
   DashboardStats,
   UploadResponse,
+  UploadHistoryResponse,
   ReconcileResponse,
   BatchEvaluationSummary,
   ExceptionListItem,
@@ -67,6 +68,13 @@ export async function uploadFinancialData(
     body: formData
   });
   return handleResponse<UploadResponse>(res);
+}
+
+export async function getUploadHistory(limit: number = 5): Promise<UploadHistoryResponse> {
+  const res = await fetch(`${API_BASE}/upload/history?limit=${limit}`, {
+    headers: { 'Accept': 'application/json' }
+  });
+  return handleResponse<UploadHistoryResponse>(res);
 }
 
 export async function runReconciliation(reconciliation_run_id: string): Promise<ReconcileResponse> {

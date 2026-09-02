@@ -1,4 +1,4 @@
-﻿export type ExceptionType = 
+export type ExceptionType = 
   | 'AMOUNT_MISMATCH'
   | 'MISSING_SETTLEMENT'
   | 'DUPLICATE'
@@ -252,6 +252,23 @@ export interface UploadResponse {
   };
   files: FileSummary[];
   validation_errors: ValidationErrorDetail[];
+}
+
+export interface UploadHistoryItem {
+  reconciliation_run_id: string;
+  payments_filename: string;
+  settlements_filename: string;
+  fees_filename: string;
+  uploaded_at: string;
+  status: string;
+  payments_count: number;
+  settlements_count: number;
+  fees_count: number;
+}
+
+export interface UploadHistoryResponse {
+  total: number;
+  items: UploadHistoryItem[];
 }
 
 export interface ReconcileResponse {

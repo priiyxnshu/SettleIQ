@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -6,13 +6,24 @@ import {
   AlertCircle,
   Play,
   FileCheck,
-  Loader2
+  Loader2,
+  History,
+  RotateCw,
+  FileText
 } from 'lucide-react';
-import type { UploadResponse } from '../../types';
-import { uploadFinancialData, runReconciliation } from '../../services/api';
+import type { UploadResponse, UploadHistoryItem } from '../../types';
+import { uploadFinancialData, runReconciliation, getUploadHistory } from '../../services/api';
 
 interface UploadViewProps {
   onReconciliationCompleted: (runId: string) => void;
+}
+
+interface FlattenedFileEntry {
+  id: string;
+  filename: string;
+  fileType: 'payments' | 'settlements' | 'fees';
+  uploadedAt: string;
+  status: string;
 }
 
 export const UploadView: React.FC<UploadViewProps> = ({
@@ -22,41 +33,43 @@ export const UploadView: React.FC<UploadViewProps> = ({
   const [settlementsFile, setSettlementsFile] = useState<File | null>(null);
   const [feesFile, setFeesFile] = useState<File | null>(null);
 
+  const [isDraggingPayments, setIsDraggingPayments] = useState(false);
+  const [isDraggingSettlements, setIsDraggingSettlements] = useState(false);
+  const [isDraggingFees, setIsDraggingFees] = useState(false);
+
+  const paymentsDragCounter = useRef(0);
+  const settlementsDragCounter = useRef(0);
+  const feesDragCounter = useRef(0);
+
   const [uploading, setUploading] = useState(false);
   const [reconciling, setReconciling] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-  // Quick 1-click dataset loader
-  const handleLoadSyntheticDataset = async (datasetName: 'development' | 'evaluation' | 'demo') => {
-    setErrorMessage(null);
-    setUploadResult(null);
+  const [uploadHistory, setUploadHistory] = useState<UploadHistoryItem[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+
+  const fetchHistory = async () => {
+    setLoadingHistory(true);
+    setHistoryError(null);
     try {
-      const resP = await fetch(`/data/${datasetName}/payments.csv`).catch(() => null);
-      const resS = await fetch(`/data/${datasetName}/settlements.csv`).catch(() => null);
-      const resF = await fetch(`/data/${datasetName}/fees.csv`).catch(() => null);
-
-      if (resP && resS && resF && resP.ok && resS.ok && resF.ok) {
-        const blobP = await resP.blob();
-        const blobS = await resS.blob();
-        const blobF = await resF.blob();
-        setPaymentsFile(new File([blobP], 'payments.csv', { type: 'text/csv' }));
-        setSettlementsFile(new File([blobS], 'settlements.csv', { type: 'text/csv' }));
-        setFeesFile(new File([blobF], 'fees.csv', { type: 'text/csv' }));
-      } else {
-        // Fallback: Generate demo CSV files dynamically in-memory for instant 1-click testing
-        const pContent = "payment_id,order_id,payment_amount,payment_date,payment_status,customer_reference,currency\nPAY_10001,ORD_50001,5000.00,2026-03-01T10:00:00Z,SUCCESS,CUST_101,INR\nPAY_10002,ORD_50002,2500.00,2026-03-01T10:15:00Z,SUCCESS,CUST_102,INR\nPAY_10003,ORD_50003,12000.00,2026-03-01T10:30:00Z,SUCCESS,CUST_103,INR\nPAY_10004,ORD_50004,3200.00,2026-03-01T10:45:00Z,SUCCESS,CUST_104,INR\nPAY_10005,ORD_50005,800.00,2026-03-01T11:00:00Z,SUCCESS,CUST_105,INR\nPAY_10006,ORD_50006,1500.00,2026-03-01T11:15:00Z,SUCCESS,CUST_106,INR\nPAY_10007,ORD_50007,4500.00,2026-03-01T11:30:00Z,SUCCESS,CUST_107,INR\nPAY_10008,ORD_50008,9800.00,2026-03-01T11:45:00Z,SUCCESS,CUST_108,INR";
-        const sContent = "settlement_id,payment_id,settlement_amount,settlement_date,settlement_status,settlement_reference,settlement_batch_id,currency\nSET_70001,PAY_10001,4850.00,2026-03-02T12:00:00Z,SETTLED,REF_1,BATCH_01,INR\nSET_70002,PAY_10002,2425.00,2026-03-02T12:00:00Z,SETTLED,REF_2,BATCH_01,INR\nSET_70003,PAY_10003,11640.00,2026-03-02T12:00:00Z,SETTLED,REF_3,BATCH_01,INR\nSET_70004,PAY_10004,3000.00,2026-03-02T12:00:00Z,SETTLED,REF_4,BATCH_01,INR\nSET_70005,PAY_10005,776.00,2026-03-02T12:00:00Z,SETTLED,REF_5,BATCH_01,INR\nSET_70006,PAY_10006,1455.00,2026-03-02T12:00:00Z,SETTLED,REF_6,BATCH_01,INR\nSET_70007,,4365.00,2026-03-02T12:00:00Z,SETTLED,SR_ORD_50007,BATCH_01,INR\nSET_70008,PAY_10008,9506.00,2026-03-02T12:00:00Z,SETTLED,REF_8,BATCH_01,INR";
-        const fContent = "fee_id,payment_id,fee_amount,fee_type,fee_date\nFEE_90001,PAY_10001,150.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90002,PAY_10002,75.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90003,PAY_10003,360.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90004,PAY_10004,96.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90005,PAY_10005,24.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90006,PAY_10006,45.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90007,PAY_10007,135.00,PERCENTAGE,2026-03-02T12:00:00Z\nFEE_90008,PAY_10008,294.00,PERCENTAGE,2026-03-02T12:00:00Z";
-
-        setPaymentsFile(new File([pContent], 'payments.csv', { type: 'text/csv' }));
-        setSettlementsFile(new File([sContent], 'settlements.csv', { type: 'text/csv' }));
-        setFeesFile(new File([fContent], 'fees.csv', { type: 'text/csv' }));
+      const res = await getUploadHistory(5);
+      if (res && res.items) {
+        setUploadHistory(res.items);
       }
     } catch (err: any) {
-      setErrorMessage(`Failed to load dataset: ${err.message}`);
+      console.error('Failed to fetch upload history:', err);
+      setHistoryError(err.message || 'Could not load recent uploads');
+    } finally {
+      setLoadingHistory(false);
     }
   };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const handleUpload = async () => {
     if (!paymentsFile || !settlementsFile || !feesFile) {
@@ -68,6 +81,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
     try {
       const res = await uploadFinancialData(paymentsFile, settlementsFile, feesFile);
       setUploadResult(res);
+      await fetchHistory(); // Await history refresh immediately
     } catch (err: any) {
       setErrorMessage(err.message || 'Upload failed');
     } finally {
@@ -90,198 +104,516 @@ export const UploadView: React.FC<UploadViewProps> = ({
 
   const allFilesSelected = Boolean(paymentsFile && settlementsFile && feesFile);
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-200">
-      {/* View Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-        <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Upload Financial Batches</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Ingest Payments, Processor Settlements, and Fee schedules to run deterministic reconciliation.
-          </p>
+  const formatTimestamp = (dateStr?: string) => {
+    if (!dateStr) return 'Just now';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Recently';
+      return d.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return 'Recently';
+    }
+  };
+
+  // Flatten batch history items into individual file entries (newest first)
+  const flattenedFiles: FlattenedFileEntry[] = [];
+  uploadHistory.forEach((batch) => {
+    const timestamp = batch.uploaded_at || new Date().toISOString();
+    flattenedFiles.push({
+      id: `${batch.reconciliation_run_id}-payments`,
+      filename: batch.payments_filename || 'payments.csv',
+      fileType: 'payments',
+      uploadedAt: timestamp,
+      status: 'Uploaded'
+    });
+    flattenedFiles.push({
+      id: `${batch.reconciliation_run_id}-settlements`,
+      filename: batch.settlements_filename || 'settlements.csv',
+      fileType: 'settlements',
+      uploadedAt: timestamp,
+      status: 'Uploaded'
+    });
+    flattenedFiles.push({
+      id: `${batch.reconciliation_run_id}-fees`,
+      filename: batch.fees_filename || 'fees.csv',
+      fileType: 'fees',
+      uploadedAt: timestamp,
+      status: 'Uploaded'
+    });
+  });
+
+  const displayedFiles = flattenedFiles.slice(0, 6);
+
+  const renderRecentUploadsList = () => (
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
+      <div>
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-2">
+          <div className="flex items-center space-x-2.5">
+            <History className="h-4 w-4 text-slate-800" />
+            <h3 className="text-sm font-bold text-slate-900">Recent Uploads</h3>
+          </div>
+          <button
+            onClick={fetchHistory}
+            disabled={loadingHistory}
+            title="Refresh upload history"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition border border-transparent hover:border-slate-200 cursor-pointer"
+          >
+            <RotateCw className={`h-3.5 w-3.5 ${loadingHistory ? 'animate-spin text-blue-600' : ''}`} />
+          </button>
         </div>
 
-        {/* Quick Demo Dataset Buttons */}
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-slate-400 font-medium">Quick Load:</span>
-          <button
-            onClick={() => handleLoadSyntheticDataset('development')}
-            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 transition"
-          >
-            Demo Batch (50)
-          </button>
-          <button
-            onClick={() => handleLoadSyntheticDataset('evaluation')}
-            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 transition"
-          >
-            Benchmark (200)
-          </button>
-        </div>
+        {loadingHistory && uploadHistory.length === 0 ? (
+          <div className="py-8 text-center text-slate-400">
+            <div className="inline-flex items-center space-x-2 text-xs">
+              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+              <span>Loading recent uploads...</span>
+            </div>
+          </div>
+        ) : historyError && uploadHistory.length === 0 ? (
+          <div className="py-8 text-center text-xs text-rose-500">
+            <p>{historyError}</p>
+            <button
+              onClick={fetchHistory}
+              className="mt-2 text-xs text-blue-600 hover:underline font-semibold cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        ) : displayedFiles.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No recent uploads found. Upload files above to get started.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {displayedFiles.map((file) => (
+              <div key={file.id} className="py-3 flex items-center justify-between group">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div
+                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+                      file.fileType === 'payments'
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100/80'
+                        : file.fileType === 'settlements'
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/80'
+                        : 'bg-purple-50 text-purple-600 border border-purple-100/80'
+                    }`}
+                  >
+                    {file.fileType === 'settlements' ? (
+                      <FileSpreadsheet className="h-4 w-4" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate">{file.filename}</p>
+                    <p className="text-[11px] text-slate-400 font-medium">
+                      {formatTimestamp(file.uploadedAt)}
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 ml-3">
+                  {file.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+    </div>
+  );
 
+
+  return (
+    <div 
+      className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-200"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => e.preventDefault()}
+    >
+      {/* Error Message Banner */}
       {errorMessage && (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-start space-x-3">
-          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start space-x-3 shadow-sm">
+          <AlertCircle className="h-5 w-5 shrink-0 text-rose-500 mt-0.5" />
           <div>
-            <p className="font-semibold">Validation or Ingestion Error</p>
-            <p className="mt-0.5 text-rose-300/90">{errorMessage}</p>
+            <p className="font-bold text-rose-900">Validation or Upload Error</p>
+            <p className="mt-0.5 text-rose-700">{errorMessage}</p>
           </div>
         </div>
       )}
 
-      {/* 3 Upload Cards */}
+      {/* 3 Upload Cards with Outer-Card Drag & Drop */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* 1. Payments File */}
-        <div className={`p-6 rounded-xl border transition-all ${
-          paymentsFile ? 'bg-slate-900/40 border-indigo-500/40' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-        }`}>
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">1. Payments Batch</span>
-            {paymentsFile ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <FileSpreadsheet className="h-4 w-4 text-slate-400" />}
+        {/* 1. Payments File Card */}
+        <div 
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            paymentsDragCounter.current += 1;
+            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+              setIsDraggingPayments(true);
+            }
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            paymentsDragCounter.current -= 1;
+            if (paymentsDragCounter.current <= 0) {
+              paymentsDragCounter.current = 0;
+              setIsDraggingPayments(false);
+            }
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            paymentsDragCounter.current = 0;
+            setIsDraggingPayments(false);
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+              setPaymentsFile(e.dataTransfer.files[0]);
+            }
+          }}
+          className={`border rounded-2xl p-6 shadow-sm transition-all duration-200 flex flex-col justify-between ${
+            isDraggingPayments
+              ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-200 shadow-md scale-[1.01]'
+              : paymentsFile 
+                ? 'border-blue-300 ring-1 ring-blue-100 bg-white' 
+                : 'border-slate-200 hover:border-slate-300 bg-white'
+          }`}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4 pointer-events-none">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                1. PAYMENTS
+              </span>
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${
+                paymentsFile ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-blue-50 text-blue-600 border border-blue-100'
+              }`}>
+                {paymentsFile ? <CheckCircle2 className="h-4 w-4 text-blue-600" /> : <FileSpreadsheet className="h-4 w-4" />}
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mb-5 font-medium h-8 pointer-events-none">
+              Internal order payments from core gateway/ledger.
+            </p>
+
+            {/* Inner Dropzone / Browse Target */}
+            <label className={`min-h-[140px] flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all duration-150 group ${
+              isDraggingPayments
+                ? 'bg-blue-100/50 border-blue-500'
+                : paymentsFile 
+                  ? 'bg-blue-50/30 border-blue-300' 
+                  : 'bg-slate-50/70 border-slate-300 hover:border-blue-400 hover:bg-blue-50/20'
+            }`}>
+              <UploadCloud className={`h-8 w-8 mb-2 transition ${
+                isDraggingPayments || paymentsFile ? 'text-blue-600 scale-110' : 'text-slate-400 group-hover:text-blue-600'
+              }`} />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 truncate max-w-[210px] text-center">
+                {paymentsFile ? paymentsFile.name : 'payments.csv'}
+              </span>
+              <span className="text-[11px] text-slate-400 font-medium mt-1 text-center">
+                {isDraggingPayments ? 'Drop file to assign' : paymentsFile ? 'Click or drop to replace' : 'Drag & drop CSV or click to browse'}
+              </span>
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) setPaymentsFile(e.target.files[0]);
+                }}
+              />
+            </label>
           </div>
-          <p className="text-xs text-slate-400 mb-4 h-8">Internal order payments from core gateway/ledger.</p>
-          
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-lg p-5 cursor-pointer bg-slate-900/20 transition group">
-            <UploadCloud className="h-6 w-6 text-slate-400 group-hover:text-indigo-400 mb-2 transition" />
-            <span className="text-xs font-medium text-slate-300 group-hover:text-white truncate max-w-[200px]">
-              {paymentsFile ? paymentsFile.name : 'Select payments.csv'}
-            </span>
-            <span className="text-[10px] text-slate-500 mt-1">Required headers: payment_id, amount</span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) setPaymentsFile(e.target.files[0]);
-              }}
-            />
-          </label>
         </div>
 
-        {/* 2. Settlements File */}
-        <div className={`p-6 rounded-xl border transition-all ${
-          settlementsFile ? 'bg-slate-900/40 border-indigo-500/40' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-        }`}>
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Settlements Batch</span>
-            {settlementsFile ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <FileSpreadsheet className="h-4 w-4 text-slate-400" />}
+        {/* 2. Settlements File Card */}
+        <div 
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            settlementsDragCounter.current += 1;
+            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+              setIsDraggingSettlements(true);
+            }
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            settlementsDragCounter.current -= 1;
+            if (settlementsDragCounter.current <= 0) {
+              settlementsDragCounter.current = 0;
+              setIsDraggingSettlements(false);
+            }
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            settlementsDragCounter.current = 0;
+            setIsDraggingSettlements(false);
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+              setSettlementsFile(e.dataTransfer.files[0]);
+            }
+          }}
+          className={`border rounded-2xl p-6 shadow-sm transition-all duration-200 flex flex-col justify-between ${
+            isDraggingSettlements
+              ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-200 shadow-md scale-[1.01]'
+              : settlementsFile 
+                ? 'border-emerald-300 ring-1 ring-emerald-100 bg-white' 
+                : 'border-slate-200 hover:border-slate-300 bg-white'
+          }`}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4 pointer-events-none">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                2. SETTLEMENTS
+              </span>
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${
+                settlementsFile ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+              }`}>
+                {settlementsFile ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <FileSpreadsheet className="h-4 w-4" />}
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mb-5 font-medium h-8 pointer-events-none">
+              Processor net settlement reports from payment gateway.
+            </p>
+
+            {/* Inner Dropzone / Browse Target */}
+            <label className={`min-h-[140px] flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all duration-150 group ${
+              isDraggingSettlements
+                ? 'bg-emerald-100/50 border-emerald-500'
+                : settlementsFile 
+                  ? 'bg-emerald-50/30 border-emerald-300' 
+                  : 'bg-slate-50/70 border-slate-300 hover:border-emerald-400 hover:bg-emerald-50/20'
+            }`}>
+              <UploadCloud className={`h-8 w-8 mb-2 transition ${
+                isDraggingSettlements || settlementsFile ? 'text-emerald-600 scale-110' : 'text-slate-400 group-hover:text-emerald-600'
+              }`} />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 truncate max-w-[210px] text-center">
+                {settlementsFile ? settlementsFile.name : 'settlements.csv'}
+              </span>
+              <span className="text-[11px] text-slate-400 font-medium mt-1 text-center">
+                {isDraggingSettlements ? 'Drop file to assign' : settlementsFile ? 'Click or drop to replace' : 'Drag & drop CSV or click to browse'}
+              </span>
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) setSettlementsFile(e.target.files[0]);
+                }}
+              />
+            </label>
           </div>
-          <p className="text-xs text-slate-400 mb-4 h-8">Processor net settlement reports from payment gateway.</p>
-          
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-lg p-5 cursor-pointer bg-slate-900/20 transition group">
-            <UploadCloud className="h-6 w-6 text-slate-400 group-hover:text-indigo-400 mb-2 transition" />
-            <span className="text-xs font-medium text-slate-300 group-hover:text-white truncate max-w-[200px]">
-              {settlementsFile ? settlementsFile.name : 'Select settlements.csv'}
-            </span>
-            <span className="text-[10px] text-slate-500 mt-1">Required: settlement_id, amount</span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) setSettlementsFile(e.target.files[0]);
-              }}
-            />
-          </label>
         </div>
 
-        {/* 3. Fees File */}
-        <div className={`p-6 rounded-xl border transition-all ${
-          feesFile ? 'bg-slate-900/40 border-indigo-500/40' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-        }`}>
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">3. Fee Schedule</span>
-            {feesFile ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <FileSpreadsheet className="h-4 w-4 text-slate-400" />}
+        {/* 3. Fees File Card */}
+        <div 
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            feesDragCounter.current += 1;
+            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+              setIsDraggingFees(true);
+            }
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            feesDragCounter.current -= 1;
+            if (feesDragCounter.current <= 0) {
+              feesDragCounter.current = 0;
+              setIsDraggingFees(false);
+            }
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            feesDragCounter.current = 0;
+            setIsDraggingFees(false);
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+              setFeesFile(e.dataTransfer.files[0]);
+            }
+          }}
+          className={`border rounded-2xl p-6 shadow-sm transition-all duration-200 flex flex-col justify-between ${
+            isDraggingFees
+              ? 'border-amber-500 bg-amber-50/50 ring-2 ring-amber-200 shadow-md scale-[1.01]'
+              : feesFile 
+                ? 'border-amber-300 ring-1 ring-amber-100 bg-white' 
+                : 'border-slate-200 hover:border-slate-300 bg-white'
+          }`}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4 pointer-events-none">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                3. FEES
+              </span>
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${
+                feesFile ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-amber-50 text-amber-600 border border-amber-100'
+              }`}>
+                {feesFile ? <CheckCircle2 className="h-4 w-4 text-amber-600" /> : <FileSpreadsheet className="h-4 w-4" />}
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mb-5 font-medium h-8 pointer-events-none">
+              Processing fees, MDR, and interchange fee breakdowns.
+            </p>
+
+            {/* Inner Dropzone / Browse Target */}
+            <label className={`min-h-[140px] flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all duration-150 group ${
+              isDraggingFees
+                ? 'bg-amber-100/50 border-amber-500'
+                : feesFile 
+                  ? 'bg-amber-50/30 border-amber-300' 
+                  : 'bg-slate-50/70 border-slate-300 hover:border-amber-400 hover:bg-amber-50/20'
+            }`}>
+              <UploadCloud className={`h-8 w-8 mb-2 transition ${
+                isDraggingFees || feesFile ? 'text-amber-600 scale-110' : 'text-slate-400 group-hover:text-amber-600'
+              }`} />
+              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 truncate max-w-[210px] text-center">
+                {feesFile ? feesFile.name : 'fees.csv'}
+              </span>
+              <span className="text-[11px] text-slate-400 font-medium mt-1 text-center">
+                {isDraggingFees ? 'Drop file to assign' : feesFile ? 'Click or drop to replace' : 'Drag & drop CSV or click to browse'}
+              </span>
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) setFeesFile(e.target.files[0]);
+                }}
+              />
+            </label>
           </div>
-          <p className="text-xs text-slate-400 mb-4 h-8">Processing fees, MDR, and interchange fee breakdowns.</p>
-          
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-lg p-5 cursor-pointer bg-slate-900/20 transition group">
-            <UploadCloud className="h-6 w-6 text-slate-400 group-hover:text-indigo-400 mb-2 transition" />
-            <span className="text-xs font-medium text-slate-300 group-hover:text-white truncate max-w-[200px]">
-              {feesFile ? feesFile.name : 'Select fees.csv'}
-            </span>
-            <span className="text-[10px] text-slate-500 mt-1">Required: fee_id, fee_amount</span>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) setFeesFile(e.target.files[0]);
-              }}
-            />
-          </label>
         </div>
       </div>
 
-      {/* Action Buttons & Ingestion Summary */}
-      {!uploadResult ? (
-        <div className="flex justify-end pt-4">
+      {/* Confirmation Checkbox & Primary Action Button (when not yet validated) */}
+      {!uploadResult && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+          <label className="flex items-center space-x-3 cursor-pointer select-none group">
+            <input
+              type="checkbox"
+              checked={isConfirmed}
+              onChange={(e) => setIsConfirmed(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+            />
+            <span className="text-xs font-medium text-slate-700 group-hover:text-slate-900 transition">
+              I have carefully reviewed the files and they are ready for validation.
+            </span>
+          </label>
+
           <button
             onClick={handleUpload}
-            disabled={!allFilesSelected || uploading}
-            className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white transition shadow-lg shadow-indigo-600/20"
+            disabled={!allFilesSelected || !isConfirmed || uploading}
+            className="inline-flex items-center space-x-2 px-7 py-3 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-all shadow-sm shadow-blue-600/20 disabled:shadow-none cursor-pointer disabled:cursor-not-allowed shrink-0"
           >
             {uploading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Validating & Ingesting...</span>
+                <span>Validating Files...</span>
               </>
             ) : (
               <>
                 <FileCheck className="h-4 w-4" />
-                <span>Validate & Ingest Batch</span>
+                <span>Validate Files</span>
               </>
             )}
           </button>
         </div>
+      )}
+
+      {/* DYNAMIC SECTION: Before vs After Validation */}
+      {!uploadResult ? (
+        /* Before Validation: Full Width Recent Uploads Card */
+        <div className="w-full">{renderRecentUploadsList()}</div>
       ) : (
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
+        /* After Validation: Side-by-Side Cards + Centered Reconciliation Button */
+        <div className="space-y-8 animate-in fade-in duration-200">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* Left Card: Files Uploaded Successfully */}
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
               <div>
-                <h3 className="text-sm font-bold text-white">Batch Ingested Successfully</h3>
-                <p className="text-xs text-slate-400 font-mono">Run ID: {uploadResult.reconciliation_run_id}</p>
+                <div className="flex items-center space-x-3 pb-5 border-b border-slate-100">
+                  <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Files Uploaded Successfully</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Batch validated and ready for reconciliation</p>
+                  </div>
+                </div>
+
+                {/* 3 Metric Cards */}
+                <div className="grid grid-cols-3 gap-3 pt-5">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[11px] text-slate-500 uppercase font-semibold block truncate">
+                      Payments Ingested
+                    </span>
+                    <p className="text-xl font-extrabold text-slate-900 mt-1 font-mono">
+                      {uploadResult.summary.payments_count}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[11px] text-slate-500 uppercase font-semibold block truncate">
+                      Settlements Ingested
+                    </span>
+                    <p className="text-xl font-extrabold text-slate-900 mt-1 font-mono">
+                      {uploadResult.summary.settlements_count}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[11px] text-slate-500 uppercase font-semibold block truncate">
+                      Fee Records
+                    </span>
+                    <p className="text-xl font-extrabold text-slate-900 mt-1 font-mono">
+                      {uploadResult.summary.fees_count}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Right Card: Recent Uploads */}
+            <div>{renderRecentUploadsList()}</div>
+          </div>
+
+          {/* Centered Start Reconciliation Action */}
+          <div className="flex justify-center pt-2">
             <button
               onClick={handleStartReconciliation}
               disabled={reconciling}
-              className="inline-flex items-center space-x-2 px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-600/20"
+              className="inline-flex items-center space-x-2.5 px-8 py-3.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white transition-all shadow-md shadow-blue-600/25 hover:shadow-lg hover:shadow-blue-600/30 cursor-pointer"
             >
               {reconciling ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Reconciling...</span>
+                  <span>Reconciling Batch...</span>
                 </>
               ) : (
                 <>
-                  <Play className="h-4 w-4" />
+                  <Play className="h-4 w-4 fill-current" />
                   <span>Start Reconciliation</span>
                 </>
               )}
             </button>
-          </div>
-
-          {/* Files Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 uppercase font-medium">Payments Ingested</span>
-              <p className="text-xl font-bold text-white mt-1 font-mono">{uploadResult.summary.payments_count}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 uppercase font-medium">Settlements Ingested</span>
-              <p className="text-xl font-bold text-white mt-1 font-mono">{uploadResult.summary.settlements_count}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 uppercase font-medium">Fee Records</span>
-              <p className="text-xl font-bold text-white mt-1 font-mono">{uploadResult.summary.fees_count}</p>
-            </div>
           </div>
         </div>
       )}
     </div>
   );
 };
+

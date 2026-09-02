@@ -1,4 +1,4 @@
-﻿import io
+import io
 import csv
 import json
 from datetime import datetime, timezone
@@ -19,7 +19,13 @@ from app.models import (
     RunStatus,
     AuditAction,
 )
-from app.schemas.ingestion import UploadResponse, FileSummary, ValidationErrorDetail
+from app.schemas.ingestion import (
+    UploadResponse,
+    FileSummary,
+    ValidationErrorDetail,
+    UploadHistoryItem,
+    UploadHistoryResponse,
+)
 
 PAYMENTS_REQUIRED_HEADERS = {"payment_id", "order_id", "payment_amount", "payment_date", "payment_status", "customer_reference"}
 SETTLEMENTS_REQUIRED_HEADERS = {"settlement_id", "payment_id", "settlement_amount", "settlement_date", "settlement_status", "settlement_reference", "settlement_batch_id"}
@@ -318,3 +324,50 @@ class IngestionService:
             ],
             validation_errors=[]
         )
+
+    @staticmethod
+    def get_upload_history(db: Session, limit: int = 5) -> UploadHistoryResponse:
+        runs = db.query(ReconciliationRun).order_by(ReconciliationRun.started_at.desc()).limit(limit).all()
+        total = db.query(ReconciliationRun).count()
+        items: List[UploadHistoryItem] = []
+
+        for run in runs:
+            # Query counts for this run
+            pay_count = db.query(PaymentRecord).filter_by(reconciliation_run_id=run.id).count()
+            set_count = db.query(SettlementRecord).filter_by(reconciliation_run_id=run.id).count()
+            fee_count = db.query(FeeRecord).filter_by(reconciliation_run_id=run.id).count()
+
+            # Retrieve filenames from audit log for this run or defaults
+            audit = db.query(AuditLog).filter(
+                AuditLog.entity_id == run.id,
+                AuditLog.action_type.in_([AuditAction.FILE_UPLOADED, "FILE_UPLOADED"])
+            ).first()
+
+            pay_fn = "payments.csv"
+            set_fn = "settlements.csv"
+            fee_fn = "fees.csv"
+
+            if audit and audit.details:
+                try:
+                    details_data = json.loads(audit.details) if isinstance(audit.details, str) else audit.details
+                    files_list = details_data.get("files", []) if isinstance(details_data, dict) else []
+                    if len(files_list) >= 3:
+                        pay_fn = files_list[0]
+                        set_fn = files_list[1]
+                        fee_fn = files_list[2]
+                except Exception:
+                    pass
+
+            items.append(UploadHistoryItem(
+                reconciliation_run_id=run.id,
+                payments_filename=pay_fn,
+                settlements_filename=set_fn,
+                fees_filename=fee_fn,
+                uploaded_at=run.started_at,
+                status=run.status.value if hasattr(run.status, "value") else str(run.status),
+                payments_count=pay_count,
+                settlements_count=set_count,
+                fees_count=fee_count
+            ))
+
+        return UploadHistoryResponse(total=total, items=items)

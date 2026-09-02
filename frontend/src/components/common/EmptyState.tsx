@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export const EmptyState: React.FC<{
   icon: React.ElementType;
@@ -6,20 +6,31 @@ export const EmptyState: React.FC<{
   description: string;
   actionText?: string;
   onAction?: () => void;
-}> = ({ icon: Icon, title, description, actionText, onAction }) => (
-  <div className="text-center py-12 px-4 border border-dashed border-slate-800 rounded-xl bg-slate-950/40">
-    <div className="inline-flex p-3 rounded-full bg-slate-900 text-slate-400 border border-slate-800 mb-3">
+  iconContainerClassName?: string;
+  containerClassName?: string;
+}> = ({
+  icon: Icon,
+  title,
+  description,
+  actionText,
+  onAction,
+  iconContainerClassName,
+  containerClassName
+}) => (
+  <div className={`text-center py-12 px-4 rounded-xl ${containerClassName || ''}`}>
+    <div className={`inline-flex p-3 rounded-full mb-3 ${iconContainerClassName || 'bg-slate-100 text-slate-500 border border-slate-200/80'}`}>
       <Icon className="h-6 w-6" />
     </div>
-    <h4 className="text-sm font-semibold text-white">{title}</h4>
-    <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">{description}</p>
+    <h4 className="text-sm font-bold text-slate-800">{title}</h4>
+    <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">{description}</p>
     {actionText && onAction && (
       <button
         onClick={onAction}
-        className="mt-4 inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm"
+        className="mt-4 inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition shadow-xs cursor-pointer"
       >
         {actionText}
       </button>
     )}
   </div>
 );
+

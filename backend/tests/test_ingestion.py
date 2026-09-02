@@ -1,4 +1,4 @@
-﻿import io
+import io
 from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
@@ -156,3 +156,40 @@ def test_malformed_numeric_value_rejection(client_with_db):
     assert response.status_code == 422
     detail = response.json()["detail"]
     assert "Invalid payment amount 'INVALID_AMOUNT'" in str(detail)
+
+
+def test_upload_history(client_with_db):
+    client, _ = client_with_db
+
+    pay_csv = "payment_id,order_id,payment_amount,payment_date,payment_status,customer_reference\nPAY_101,ORD_101,500.00,2026-08-01 10:00:00,SUCCESS,CUST_101"
+    set_csv = "settlement_id,payment_id,settlement_amount,settlement_date,settlement_status,settlement_reference,settlement_batch_id\nSET_101,PAY_101,490.00,2026-08-02 10:00:00,SETTLED,REF_101,B101"
+    fee_csv = "fee_id,payment_id,fee_amount,fee_type,fee_date\nFEE_101,PAY_101,10.00,PROCESSING_FEE,2026-08-01 10:01:00"
+
+    # Upload files
+    upload_res = client.post(
+        "/api/upload",
+        files={
+            "payments_file": ("custom_payments.csv", pay_csv.encode("utf-8"), "text/csv"),
+            "settlements_file": ("custom_settlements.csv", set_csv.encode("utf-8"), "text/csv"),
+            "fees_file": ("custom_fees.csv", fee_csv.encode("utf-8"), "text/csv"),
+        }
+    )
+    assert upload_res.status_code == 201
+    run_id = upload_res.json()["reconciliation_run_id"]
+
+    # Query history
+    hist_res = client.get("/api/upload/history")
+    assert hist_res.status_code == 200
+    hist_data = hist_res.json()
+    assert hist_data["total"] >= 1
+    assert len(hist_data["items"]) >= 1
+
+    latest_item = hist_data["items"][0]
+    assert latest_item["reconciliation_run_id"] == run_id
+    assert latest_item["payments_filename"] == "custom_payments.csv"
+    assert latest_item["settlements_filename"] == "custom_settlements.csv"
+    assert latest_item["fees_filename"] == "custom_fees.csv"
+    assert latest_item["payments_count"] == 1
+    assert latest_item["settlements_count"] == 1
+    assert latest_item["fees_count"] == 1
+    assert latest_item["status"] in ["CREATED", "VALIDATED"]

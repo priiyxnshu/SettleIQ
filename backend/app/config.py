@@ -1,6 +1,9 @@
-﻿import os
+from pathlib import Path
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+_DEFAULT_DB_PATH = (_BACKEND_DIR / "settleiq.db").as_posix()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -15,7 +18,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Database
-    DATABASE_URL: str = "sqlite:///./settleiq.db"
+    DATABASE_URL: str = f"sqlite:///{_DEFAULT_DB_PATH}"
     
     # CORS
     CORS_ORIGINS: List[str] = [
