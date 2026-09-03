@@ -1,5 +1,5 @@
-﻿from typing import List, Optional
-from sqlalchemy.orm import Session
+from typing import List, Optional
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 
 from app.models import (
@@ -9,7 +9,8 @@ from app.models import (
     FeeRecord,
     ReviewDecision,
     ExceptionType,
-    ExceptionStatus
+    ExceptionStatus,
+    DecisionOutcome
 )
 from app.schemas.exception import (
     ExceptionListItem,
@@ -27,18 +28,30 @@ class ExceptionService:
         db: Session,
         reconciliation_run_id: Optional[str] = None,
         exception_type: Optional[ExceptionType] = None,
-        exception_status: Optional[ExceptionStatus] = None,
+        exception_status: Optional[str] = None,
         skip: int = 0,
         limit: int = 100
     ) -> ExceptionListResponse:
-        query = db.query(ExceptionRecord)
+        query = db.query(ExceptionRecord).options(joinedload(ExceptionRecord.decision))
 
         if reconciliation_run_id:
             query = query.filter(ExceptionRecord.reconciliation_run_id == reconciliation_run_id)
         if exception_type:
             query = query.filter(ExceptionRecord.exception_type == exception_type)
         if exception_status:
-            query = query.filter(ExceptionRecord.status == exception_status)
+            status_val = exception_status.value if hasattr(exception_status, "value") else str(exception_status)
+            if status_val == "HUMAN_APPROVED":
+                query = query.filter(
+                    ExceptionRecord.status == ExceptionStatus.AUTO_RESOLVED,
+                    ExceptionRecord.decision.has(ReviewDecision.decision_outcome == DecisionOutcome.APPROVED)
+                )
+            elif status_val == "AUTO_RESOLVED":
+                query = query.filter(
+                    ExceptionRecord.status == ExceptionStatus.AUTO_RESOLVED,
+                    ~ExceptionRecord.decision.has(ReviewDecision.decision_outcome == DecisionOutcome.APPROVED)
+                )
+            else:
+                query = query.filter(ExceptionRecord.status == status_val)
 
         total = query.count()
         exceptions: List[ExceptionRecord] = query.order_by(ExceptionRecord.detected_at.desc()).offset(skip).limit(limit).all()
@@ -59,6 +72,17 @@ class ExceptionService:
         items = []
         for exc in exceptions:
             p = payments_map.get((exc.reconciliation_run_id, exc.source_reference))
+            decision_detail = None
+            if exc.decision:
+                decision_detail = ReviewDecisionDetail(
+                    id=exc.decision.id,
+                    recommended_action=exc.decision.recommended_action,
+                    decision_outcome=exc.decision.decision_outcome,
+                    confidence=exc.decision.confidence,
+                    decided_by=exc.decision.decided_by,
+                    reason=exc.decision.reason,
+                    created_at=exc.decision.created_at
+                )
             items.append(ExceptionListItem(
                 id=exc.id,
                 reconciliation_run_id=exc.reconciliation_run_id,
@@ -68,7 +92,8 @@ class ExceptionService:
                 severity=exc.severity,
                 detected_at=exc.detected_at,
                 payment_amount=float(p.payment_amount) if p else None,
-                customer_reference=p.customer_reference if p else None
+                customer_reference=p.customer_reference if p else None,
+                decision=decision_detail
             ))
 
         return ExceptionListResponse(total=total, items=items)

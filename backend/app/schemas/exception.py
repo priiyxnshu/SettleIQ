@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 from app.models.enums import ExceptionType, ExceptionStatus, DecisionOutcome
@@ -51,6 +51,7 @@ class ExceptionListItem(BaseModel):
     detected_at: datetime
     payment_amount: Optional[float] = None
     customer_reference: Optional[str] = None
+    decision: Optional[ReviewDecisionDetail] = None
 
 class ExceptionListResponse(BaseModel):
     total: int

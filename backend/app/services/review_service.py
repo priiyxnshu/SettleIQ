@@ -1,4 +1,4 @@
-﻿import json
+import json
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -44,10 +44,10 @@ class ReviewService:
             action_type = AuditAction.HUMAN_APPROVED
             default_reason = f"Manually approved and resolved by {operator}"
         elif request.action == HumanReviewAction.REJECT:
-            new_status = ExceptionStatus.HUMAN_REVIEW
+            new_status = ExceptionStatus.REJECTED
             outcome = DecisionOutcome.REJECTED
             action_type = AuditAction.HUMAN_REJECTED
-            default_reason = f"Resolution rejected by {operator}"
+            default_reason = f"Resolution rejected / disputed by {operator}"
         else:  # KEEP_UNRESOLVED
             new_status = ExceptionStatus.HUMAN_REVIEW
             outcome = DecisionOutcome.HUMAN_REVIEW

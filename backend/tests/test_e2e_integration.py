@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import csv
 import pytest
 from fastapi.testclient import TestClient
@@ -143,7 +143,7 @@ def test_full_platform_lifecycle_e2e(client_and_session):
     )
     assert res_rej.status_code == 200
     data_rej = res_rej.json()
-    assert data_rej["new_status"] == "HUMAN_REVIEW"
+    assert data_rej["new_status"] == "REJECTED"
     assert data_rej["decision_outcome"] == "REJECTED"
     assert data_rej["decided_by"] == "Ops Manager B"
 

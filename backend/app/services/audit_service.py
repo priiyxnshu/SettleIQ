@@ -1,4 +1,4 @@
-﻿import json
+import json
 from typing import List, Optional, Any
 from sqlalchemy.orm import Session
 from app.models import AuditLog, AuditAction
@@ -53,7 +53,7 @@ class AuditService:
     def get_exception_history(db: Session, exception_id: str) -> List[AuditLogItem]:
         logs = db.query(AuditLog).filter(
             AuditLog.entity_id == exception_id
-        ).order_by(AuditLog.created_at.asc()).all()
+        ).order_by(AuditLog.created_at.desc()).all()
 
         return [
             AuditLogItem(

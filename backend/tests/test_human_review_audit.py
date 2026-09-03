@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -142,16 +142,33 @@ def test_human_reject_action(populated_client):
     assert res.status_code == 200
     data = res.json()
     assert data["action_taken"] == "REJECT"
-    assert data["new_status"] == "HUMAN_REVIEW"
+    assert data["new_status"] == "REJECTED"
     assert data["decision_outcome"] == "REJECTED"
     assert data["decided_by"] == "Ops Manager"
 
-    # Verify AuditLog has HUMAN_REJECTED
+    # Verify DB persistence in fresh session
     verify_db = Session()
+    updated_exc = verify_db.query(ExceptionRecord).filter_by(id=exc_id).first()
+    assert updated_exc.status == ExceptionStatus.REJECTED
+
+    decision = verify_db.query(ReviewDecision).filter_by(exception_id=exc_id).first()
+    assert decision.decision_outcome == DecisionOutcome.REJECTED
+    assert decision.decided_by == "Ops Manager"
+    assert "Ticket opened with support" in decision.reason
+
+    # Verify AuditLog has HUMAN_REJECTED
     audit = verify_db.query(AuditLog).filter_by(entity_id=exc_id, action_type=AuditAction.HUMAN_REJECTED).first()
     assert audit is not None
     assert "Ticket opened with support" in audit.details
     verify_db.close()
+
+    # Verify REJECTED exception is terminal and CANNOT be reviewed again
+    repeat_res = client.post(
+        f"/api/exceptions/{exc_id}/review",
+        json={"action": "APPROVE", "notes": "Invalid attempt"}
+    )
+    assert repeat_res.status_code == 400
+    assert "Only exceptions in 'HUMAN_REVIEW' can be reviewed" in repeat_res.json()["detail"]
 
 
 def test_human_keep_unresolved_action(populated_client):
@@ -224,3 +241,71 @@ def test_global_audit_queries(populated_client):
     assert data_filtered["total"] >= 1
     for item in data_filtered["items"]:
         assert item["action_type"] == "FILE_UPLOADED"
+
+
+def test_review_queue_counts_across_three_actions(populated_client):
+    client, Session, run_id = populated_client
+    
+    # 1. Initial count of HUMAN_REVIEW items
+    dash_res = client.get("/api/dashboard")
+    assert dash_res.status_code == 200
+    initial_human_review = dash_res.json()["human_review_count"]
+    initial_auto_resolved = dash_res.json()["auto_resolved_count"]
+    assert initial_human_review >= 3
+
+    queue_res = client.get(f"/api/exceptions?reconciliation_run_id={run_id}&status=HUMAN_REVIEW&limit=50")
+    assert queue_res.status_code == 200
+    items = queue_res.json()["items"]
+    assert len(items) == initial_human_review
+
+    e1 = items[0]["id"]
+    e2 = items[1]["id"]
+    e3 = items[2]["id"]
+
+    # Action 1: KEEP_UNRESOLVED (Keep Pending) -> leaves count unchanged
+    res_keep = client.post(
+        f"/api/exceptions/{e1}/review",
+        json={"action": "KEEP_UNRESOLVED", "notes": "Deferred notes", "reviewed_by": "Operator"}
+    )
+    assert res_keep.status_code == 200
+    assert res_keep.json()["new_status"] == "HUMAN_REVIEW"
+
+    dash_res1 = client.get("/api/dashboard")
+    assert dash_res1.json()["human_review_count"] == initial_human_review
+    assert dash_res1.json()["auto_resolved_count"] == initial_auto_resolved
+
+    # Action 2: APPROVE (Approve & Resolve) -> decreases human_review by 1, does NOT increase auto_resolved
+    res_app = client.post(
+        f"/api/exceptions/{e2}/review",
+        json={"action": "APPROVE", "notes": "Approved notes", "reviewed_by": "Operator"}
+    )
+    assert res_app.status_code == 200
+    assert res_app.json()["new_status"] == "AUTO_RESOLVED"
+
+    dash_res2 = client.get("/api/dashboard")
+    assert dash_res2.json()["human_review_count"] == initial_human_review - 1
+    assert dash_res2.json()["auto_resolved_count"] == initial_auto_resolved
+    assert dash_res2.json()["human_approved_count"] == 1
+
+    # Action 3: REJECT (Reject / Dispute) -> decreases human_review by 1, does NOT increase auto_resolved
+    res_rej = client.post(
+        f"/api/exceptions/{e3}/review",
+        json={"action": "REJECT", "notes": "Disputed notes", "reviewed_by": "Operator"}
+    )
+    assert res_rej.status_code == 200
+    assert res_rej.json()["new_status"] == "REJECTED"
+
+    dash_res3 = client.get("/api/dashboard")
+    assert dash_res3.json()["human_review_count"] == initial_human_review - 2
+    assert dash_res3.json()["auto_resolved_count"] == initial_auto_resolved
+    assert dash_res3.json()["human_approved_count"] == 1
+
+    # Verify queue query only returns remaining HUMAN_REVIEW items
+    final_queue_res = client.get(f"/api/exceptions?reconciliation_run_id={run_id}&status=HUMAN_REVIEW&limit=50")
+    assert final_queue_res.status_code == 200
+    final_items = final_queue_res.json()["items"]
+    assert len(final_items) == initial_human_review - 2
+    final_ids = {item["id"] for item in final_items}
+    assert e1 in final_ids
+    assert e2 not in final_ids
+    assert e3 not in final_ids

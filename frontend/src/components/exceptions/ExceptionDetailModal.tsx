@@ -248,9 +248,9 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
     }
 
     if (detail.status === 'AUTO_RESOLVED') {
-      if (detail.decision?.decision_outcome === 'APPROVED' || (detail.decision && detail.decision.decided_by !== 'SYSTEM')) {
+      if (detail.decision?.decision_outcome === 'APPROVED') {
         return {
-          statusText: 'Approved',
+          statusText: 'Human Approved',
           statusStyle: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
           explanation: 'Configured guardrails validated the deterministic evidence package, and the exception was reviewed and approved by the Reconciliation Manager.',
           resultText: detail.decision.reason || 'Approved and resolved by the Reconciliation Manager.'
@@ -261,6 +261,15 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
         statusStyle: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
         explanation: 'The exception passed all 5 deterministic guardrail checks. The amount difference is 100% accounted for by recorded processing fees and satisfies all policy criteria for automatic resolution.',
         resultText: detail.decision?.reason || 'Auto-resolve approved: Discrepancy is fully explained by recorded processing fees.'
+      };
+    }
+
+    if (detail.status === 'REJECTED') {
+      return {
+        statusText: 'Rejected / Disputed',
+        statusStyle: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+        explanation: 'The exception was reviewed by the Reconciliation Manager and determined to be rejected / disputed.',
+        resultText: detail.decision?.reason || 'Resolution rejected and disputed by the Reconciliation Manager.'
       };
     }
 
@@ -301,9 +310,9 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
     }
 
     if (detail.status === 'AUTO_RESOLVED') {
-      if (detail.decision?.decision_outcome === 'APPROVED' || (detail.decision && detail.decision.decided_by !== 'SYSTEM')) {
+      if (detail.decision?.decision_outcome === 'APPROVED') {
         return {
-          title: 'Approved',
+          title: 'Human Approved',
           badgeStyle: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
           iconBox: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
           headline: 'The exception was investigated, verified, and approved by the Reconciliation Manager.',
@@ -316,6 +325,16 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
         iconBox: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
         headline: 'The exception met all policy criteria and was automatically resolved by the system.',
         subtext: 'No manual intervention is required. The transaction was automatically resolved and reconciled in accordance with financial policy.'
+      };
+    }
+
+    if (detail.status === 'REJECTED') {
+      return {
+        title: 'Rejected / Disputed',
+        badgeStyle: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+        iconBox: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        headline: 'The exception was reviewed and rejected / disputed by the Reconciliation Manager.',
+        subtext: detail.decision?.reason || 'The transaction dispute has been recorded and closed in the audit log.'
       };
     }
 
@@ -350,13 +369,16 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
 
   const finalOutcome = getFinalOutcome();
 
-  // Audit Logs Pagination & Derivations
-  const totalAuditEvents = auditLogs.length;
+  // Audit Logs Pagination & Derivations (Newest / most recent first)
+  const sortedAuditLogs = [...auditLogs].sort((a, b) => {
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+  const totalAuditEvents = sortedAuditLogs.length;
   const totalAuditPages = Math.max(1, Math.ceil(totalAuditEvents / auditPageSize));
   const safeAuditPage = Math.min(Math.max(1, auditPage), totalAuditPages);
   const auditStartIndex = totalAuditEvents === 0 ? 0 : (safeAuditPage - 1) * auditPageSize;
   const auditEndIndex = Math.min(auditStartIndex + auditPageSize, totalAuditEvents);
-  const paginatedAuditLogs = auditLogs.slice(auditStartIndex, auditEndIndex);
+  const paginatedAuditLogs = sortedAuditLogs.slice(auditStartIndex, auditEndIndex);
 
   const getAuditItemConfig = (log: AuditLogItem) => {
     const action = log.action_type;
@@ -592,7 +614,7 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
             <div className="space-y-2">
               <div className="flex items-center space-x-2.5">
                 <ExceptionTypeBadge type={detail.exception_type} />
-                <StatusBadge status={detail.status} />
+                <StatusBadge status={detail.status} decision={detail.decision} />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-1 font-mono text-xs">

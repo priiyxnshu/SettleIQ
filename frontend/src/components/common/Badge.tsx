@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ExceptionType, ExceptionStatus, AuditAction } from '../../types';
+import type { ExceptionType, ExceptionStatus, AuditAction, ReviewDecisionDetail } from '../../types';
 
 export const ExceptionTypeBadge: React.FC<{ type: ExceptionType; className?: string }> = ({ type, className = '' }) => {
   const styles: Record<ExceptionType, string> = {
@@ -25,33 +25,51 @@ export const ExceptionTypeBadge: React.FC<{ type: ExceptionType; className?: str
   );
 };
 
-export const StatusBadge: React.FC<{ status: ExceptionStatus; className?: string }> = ({ status, className = '' }) => {
-  const styles: Record<ExceptionStatus, string> = {
-    OPEN: 'bg-amber-50 text-amber-700 border-amber-200',
-    INVESTIGATING: 'bg-blue-50 text-blue-700 border-blue-200',
-    AUTO_RESOLVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    HUMAN_REVIEW: 'bg-purple-50 text-purple-700 border-purple-200'
-  };
+export const StatusBadge: React.FC<{
+  status: ExceptionStatus;
+  decision?: ReviewDecisionDetail | null;
+  className?: string;
+}> = ({ status, decision, className = '' }) => {
+  const isHumanApproved =
+    status === 'AUTO_RESOLVED' &&
+    decision?.decision_outcome === 'APPROVED';
 
-  const labels: Record<ExceptionStatus, string> = {
-    OPEN: 'Awaiting Investigation',
-    INVESTIGATING: 'Investigating',
-    AUTO_RESOLVED: 'Auto-Resolved',
-    HUMAN_REVIEW: 'Needs Review'
-  };
+  const isRejected = status === 'REJECTED' || decision?.decision_outcome === 'REJECTED';
+
+  let label: string;
+  let style: string;
+  let dotColor: string;
+
+  if (isRejected) {
+    label = 'Rejected / Disputed';
+    style = 'bg-rose-50 text-rose-700 border-rose-200';
+    dotColor = 'bg-rose-500';
+  } else if (isHumanApproved) {
+    label = 'Human Approved';
+    style = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    dotColor = 'bg-emerald-500';
+  } else if (status === 'AUTO_RESOLVED') {
+    label = 'Auto-Resolved';
+    style = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    dotColor = 'bg-emerald-500';
+  } else if (status === 'HUMAN_REVIEW') {
+    label = 'Needs Review';
+    style = 'bg-purple-50 text-purple-700 border-purple-200';
+    dotColor = 'bg-purple-500';
+  } else if (status === 'INVESTIGATING') {
+    label = 'Investigating';
+    style = 'bg-blue-50 text-blue-700 border-blue-200';
+    dotColor = 'bg-blue-500';
+  } else {
+    label = 'Awaiting Investigation';
+    style = 'bg-amber-50 text-amber-700 border-amber-200';
+    dotColor = 'bg-amber-500';
+  }
 
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-slate-100 text-slate-700 border-slate-200'} ${className}`}>
-      <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${
-        status === 'AUTO_RESOLVED' 
-          ? 'bg-emerald-500' 
-          : status === 'HUMAN_REVIEW' 
-            ? 'bg-purple-500' 
-            : status === 'INVESTIGATING'
-              ? 'bg-blue-500'
-              : 'bg-amber-500'
-      }`} />
-      {labels[status] || status}
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${style} ${className}`}>
+      <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${dotColor}`} />
+      {label}
     </span>
   );
 };

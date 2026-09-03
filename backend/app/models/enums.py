@@ -1,4 +1,4 @@
-﻿import enum
+import enum
 
 class UploadFileType(str, enum.Enum):
     PAYMENTS = "PAYMENTS"
@@ -28,6 +28,7 @@ class ExceptionStatus(str, enum.Enum):
     INVESTIGATING = "INVESTIGATING"
     AUTO_RESOLVED = "AUTO_RESOLVED"
     HUMAN_REVIEW = "HUMAN_REVIEW"
+    REJECTED = "REJECTED"
 
 class DecisionOutcome(str, enum.Enum):
     AUTO_RESOLVE = "AUTO_RESOLVE"

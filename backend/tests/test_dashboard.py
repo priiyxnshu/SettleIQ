@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -79,3 +79,9 @@ def test_dashboard_metrics_endpoint(populated_client):
     assert data["match_rate"] == 60.0
     assert "AMOUNT_MISMATCH" in data["breakdown"]
     assert len(data["recent_exceptions"]) <= 5
+    assert "expected_amount" in data
+    assert "settled_amount" in data
+    assert "difference_amount" in data
+    assert data["expected_amount"] > 0
+    assert data["settled_amount"] > 0
+    assert round(data["expected_amount"] - data["settled_amount"], 2) == data["difference_amount"]

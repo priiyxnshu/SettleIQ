@@ -71,7 +71,7 @@ const AppContent: React.FC = () => {
     },
     review: {
       title: 'Review Queue',
-      subtitle: 'Exceptions routed for human operator review'
+      subtitle: ''
     },
     audit: {
       title: 'Audit Logs',
@@ -138,7 +138,7 @@ const AppContent: React.FC = () => {
                 runId={dashboardStats?.latest_run_id || undefined}
                 refreshKey={exceptionsRefreshKey}
                 isInvestigated={Boolean(
-                  dashboardStats && (dashboardStats.auto_resolved_count + dashboardStats.human_review_count) > 0
+                  dashboardStats && (dashboardStats.auto_resolved_count + dashboardStats.human_review_count + (dashboardStats.human_approved_count || 0)) > 0
                 )}
               />
             )}
@@ -147,6 +147,7 @@ const AppContent: React.FC = () => {
               <ReviewQueueView
                 onRefreshParent={fetchStats}
                 onSelectException={setSelectedExceptionId}
+                runId={dashboardStats?.latest_run_id || undefined}
               />
             )}
 

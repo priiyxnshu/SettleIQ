@@ -87,6 +87,19 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
   }, [runId, searchQuery, selectedType, selectedStatus]);
 
   const filteredExceptions = exceptions.filter((exc) => {
+    // Dynamic status filtering for HUMAN_APPROVED vs AUTO_RESOLVED
+    if (selectedStatus === 'HUMAN_APPROVED') {
+      const isApproved =
+        exc.status === 'AUTO_RESOLVED' &&
+        exc.decision?.decision_outcome === 'APPROVED';
+      if (!isApproved) return false;
+    } else if (selectedStatus === 'AUTO_RESOLVED') {
+      const isAuto =
+        exc.status === 'AUTO_RESOLVED' &&
+        exc.decision?.decision_outcome !== 'APPROVED';
+      if (!isAuto) return false;
+    }
+
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -116,16 +129,18 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
   // Determine if the batch has undergone AI Investigation & Guardrails
   const isBatchInvestigated = isInvestigated !== undefined
     ? isInvestigated
-    : exceptions.some((e) => e.status === 'HUMAN_REVIEW' || e.status === 'AUTO_RESOLVED');
+    : exceptions.some((e) => e.status === 'HUMAN_REVIEW' || e.status === 'AUTO_RESOLVED' || e.status === 'REJECTED');
 
   // Dynamic status filters based on lifecycle:
   // Before AI Investigation: All Statuses | Awaiting Investigation
-  // After AI Investigation: All Statuses | Needs Review | Auto-Resolved
+  // After AI Investigation: All Statuses | Needs Review | Human Approved | Auto-Resolved | Rejected / Disputed
   const statusFilters: { id: string; label: string }[] = isBatchInvestigated
     ? [
         { id: 'ALL', label: 'All Statuses' },
         { id: 'HUMAN_REVIEW', label: 'Needs Review' },
-        { id: 'AUTO_RESOLVED', label: 'Auto-Resolved' }
+        { id: 'HUMAN_APPROVED', label: 'Human Approved' },
+        { id: 'AUTO_RESOLVED', label: 'Auto-Resolved' },
+        { id: 'REJECTED', label: 'Rejected / Disputed' }
       ]
     : [
         { id: 'ALL', label: 'All Statuses' },
@@ -327,7 +342,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                         ₹{exc.payment_amount ? exc.payment_amount.toFixed(2) : '--'}
                       </td>
                       <td className="py-3.5 px-6 text-center">
-                        <StatusBadge status={exc.status} />
+                        <StatusBadge status={exc.status} decision={exc.decision} />
                       </td>
                       <td className="py-3.5 px-6 text-slate-500 font-medium">
                         {new Date(exc.detected_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

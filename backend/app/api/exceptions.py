@@ -1,4 +1,4 @@
-﻿from typing import Optional, List
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.orm import Session
 from app.database.session import get_db
@@ -26,7 +26,7 @@ router = APIRouter()
 def list_exceptions(
     reconciliation_run_id: Optional[str] = Query(None, description="Filter by reconciliation run ID"),
     exception_type: Optional[ExceptionType] = Query(None, description="Filter by canonical exception type"),
-    status: Optional[ExceptionStatus] = Query(None, description="Filter by workflow status"),
+    status: Optional[str] = Query(None, description="Filter by workflow status (e.g. HUMAN_REVIEW, AUTO_RESOLVED, HUMAN_APPROVED, REJECTED)"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db)

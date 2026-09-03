@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 from typing import List, Optional, Dict
 from pydantic import BaseModel
 from app.models.enums import RunStatus
@@ -14,8 +14,12 @@ class DashboardStats(BaseModel):
     matched_count: int = 0
     exceptions_count: int = 0
     auto_resolved_count: int = 0
+    human_approved_count: int = 0
     human_review_count: int = 0
     match_rate: float = 0.0
     auto_resolution_rate: float = 0.0
+    expected_amount: float = 0.0
+    settled_amount: float = 0.0
+    difference_amount: float = 0.0
     breakdown: Dict[str, int] = {}
     recent_exceptions: List[ExceptionListItem] = []

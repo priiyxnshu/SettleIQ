@@ -12,6 +12,7 @@ import {
   Users
 } from 'lucide-react';
 import type { DashboardStats, BatchEvaluationSummary } from '../../types';
+import { FinancialKpiCards } from '../common/FinancialKpiCards';
 import { evaluateRunGuardrails } from '../../services/api';
 import { METRIC_LABELS, NAV_LABELS } from '../../constants/metrics';
 
@@ -51,7 +52,7 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
   // Determine if AI investigation has already been completed on the current batch (persisted in DB)
   const isAICompleted = !demoMode && (
     Boolean(evalResult) || Boolean(
-      stats && stats.exceptions_count > 0 && (stats.auto_resolved_count + stats.human_review_count) > 0
+      stats && stats.exceptions_count > 0 && (stats.auto_resolved_count + stats.human_review_count + (stats.human_approved_count || 0)) > 0
     )
   );
 
@@ -228,6 +229,13 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Financial KPI Cards */}
+      <FinancialKpiCards
+        expectedAmount={stats.expected_amount ?? 0}
+        settledAmount={stats.settled_amount ?? 0}
+        differenceAmount={stats.difference_amount ?? 0}
+      />
 
       {/* 2. Primary Focus: Exception Distribution Card */}
       <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-7 shadow-sm">

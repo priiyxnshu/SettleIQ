@@ -9,7 +9,8 @@ export type ExceptionStatus =
   | 'OPEN'
   | 'INVESTIGATING'
   | 'AUTO_RESOLVED'
-  | 'HUMAN_REVIEW';
+  | 'HUMAN_REVIEW'
+  | 'REJECTED';
 
 export type DecisionOutcome = 
   | 'AUTO_RESOLVE'
@@ -102,6 +103,7 @@ export interface ExceptionListItem {
   detected_at: string;
   payment_amount?: number;
   customer_reference?: string;
+  decision?: ReviewDecisionDetail | null;
 }
 
 export interface ExceptionDetailResponse {
@@ -221,9 +223,13 @@ export interface DashboardStats {
   matched_count: number;
   exceptions_count: number;
   auto_resolved_count: number;
+  human_approved_count?: number;
   human_review_count: number;
   match_rate: number;
   auto_resolution_rate: number;
+  expected_amount?: number;
+  settled_amount?: number;
+  difference_amount?: number;
   breakdown: Record<string, number>;
   recent_exceptions: ExceptionListItem[];
 }

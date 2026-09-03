@@ -16,6 +16,7 @@ import {
 import type { DashboardStats, ExceptionListItem, UploadHistoryItem } from '../../types';
 import { useUser } from '../../context/UserContext';
 import { StatCard } from '../common/StatCard';
+import { FinancialKpiCards } from '../common/FinancialKpiCards';
 import { ExceptionTypeBadge, StatusBadge } from '../common/Badge';
 import { EmptyState } from '../common/EmptyState';
 import { getUploadHistory } from '../../services/api';
@@ -202,6 +203,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           colorTheme="purple"
         />
       </div>
+
+      {/* Financial KPI Cards */}
+      <FinancialKpiCards
+        expectedAmount={stats.expected_amount ?? 0}
+        settledAmount={stats.settled_amount ?? 0}
+        differenceAmount={stats.difference_amount ?? 0}
+      />
 
       {/* Middle Section: 2 Side-by-Side Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -505,7 +513,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       ₹{exc.payment_amount ? exc.payment_amount.toFixed(2) : '--'}
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <StatusBadge status={exc.status} />
+                      <StatusBadge status={exc.status} decision={exc.decision} />
                     </td>
                     {isManager && (
                       <td className="py-4 px-6 text-right">
