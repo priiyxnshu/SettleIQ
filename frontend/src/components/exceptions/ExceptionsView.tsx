@@ -165,17 +165,17 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* Compact Horizontal Filters Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
-            <Search className="h-4 w-4 absolute left-3.5 top-2.5 text-slate-400" />
+            <Search className="h-4 w-4 absolute left-3.5 top-2.5 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Search by Exception ID or Payment Reference..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition"
+              className="w-full bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 transition"
             />
           </div>
 
@@ -191,17 +191,17 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                 }}
                 className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition cursor-pointer select-none ${
                   selectedType !== 'ALL'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs'
-                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-2xs'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 shadow-2xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/60 shadow-2xs'
                 }`}
               >
-                <span className="text-slate-500 font-normal">Type:</span>
+                <span className="text-slate-500 dark:text-slate-400 font-normal">Type:</span>
                 <span>{selectedType === 'ALL' ? 'All' : currentTypeLabel}</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${typeOpen ? 'rotate-180 text-blue-600' : 'text-slate-400'}`} />
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${typeOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
               </button>
 
               {typeOpen && (
-                <div className="absolute right-0 sm:left-0 sm:right-auto mt-1.5 w-48 bg-white border border-slate-200/90 rounded-xl shadow-lg py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 sm:left-0 sm:right-auto mt-1.5 w-48 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-lg dark:shadow-2xl py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
                   {canonicalTypes.map((t) => (
                     <button
                       key={t.id}
@@ -212,12 +212,12 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                       }}
                       className={`w-full text-left px-3.5 py-2 text-xs transition cursor-pointer flex items-center justify-between ${
                         selectedType === t.id
-                          ? 'bg-blue-50 text-blue-700 font-bold'
-                          : 'text-slate-700 hover:bg-slate-50 font-medium'
+                          ? 'bg-blue-50 text-blue-700 font-bold dark:bg-blue-950/60 dark:text-blue-300'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
                       }`}
                     >
                       <span>{t.label}</span>
-                      {selectedType === t.id && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                      {selectedType === t.id && <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />}
                     </button>
                   ))}
                 </div>
@@ -234,17 +234,17 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                 }}
                 className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition cursor-pointer select-none ${
                   selectedStatus !== 'ALL'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs'
-                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-2xs'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 shadow-2xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/60 shadow-2xs'
                 }`}
               >
-                <span className="text-slate-500 font-normal">Status:</span>
+                <span className="text-slate-500 dark:text-slate-400 font-normal">Status:</span>
                 <span>{selectedStatus === 'ALL' ? 'All' : currentStatusLabel}</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${statusOpen ? 'rotate-180 text-blue-600' : 'text-slate-400'}`} />
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${statusOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
               </button>
 
               {statusOpen && (
-                <div className="absolute right-0 mt-1.5 w-44 bg-white border border-slate-200/90 rounded-xl shadow-lg py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-1.5 w-44 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-lg dark:shadow-2xl py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
                   {statusFilters.map((s) => (
                     <button
                       key={s.id}
@@ -255,12 +255,12 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                       }}
                       className={`w-full text-left px-3.5 py-2 text-xs transition cursor-pointer flex items-center justify-between ${
                         selectedStatus === s.id
-                          ? 'bg-blue-50 text-blue-700 font-bold'
-                          : 'text-slate-700 hover:bg-slate-50 font-medium'
+                          ? 'bg-blue-50 text-blue-700 font-bold dark:bg-blue-950/60 dark:text-blue-300'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
                       }`}
                     >
                       <span>{s.label}</span>
-                      {selectedStatus === s.id && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                      {selectedStatus === s.id && <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />}
                     </button>
                   ))}
                 </div>
@@ -276,10 +276,10 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                   setSelectedStatus('ALL');
                   setSearchQuery('');
                 }}
-                className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                 title="Reset all filters"
               >
-                <X className="h-3.5 w-3.5 text-slate-400" />
+                <X className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                 <span>Clear Filters</span>
               </button>
             )}
@@ -288,7 +288,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
       </div>
 
       {/* Exception Table Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="py-16">
             <LoadingSpinner message="Fetching exceptions..." />
@@ -299,11 +299,11 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
           <div className="py-16">
             {selectedStatus === 'AUTO_RESOLVED' ? (
               <div className="text-center py-10 px-4 animate-in fade-in duration-200">
-                <div className="inline-flex p-3.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 mb-3 shadow-xs">
+                <div className="inline-flex p-3.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/60 mb-3 shadow-xs">
                   <CheckCircle2 className="h-6 w-6 stroke-[2]" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-800">No Auto-Resolved Exceptions</h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Auto-Resolved Exceptions</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
                   No exceptions in this reconciliation have been automatically resolved.
                 </p>
               </div>
@@ -319,7 +319,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-200/80 uppercase tracking-wider text-[10px]">
+                <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200/80 dark:border-slate-800 uppercase tracking-wider text-[10px]">
                   <tr>
                     <th className="py-3.5 px-6">Exception ID</th>
                     <th className="py-3.5 px-6">Type</th>
@@ -330,27 +330,27 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                     <th className="py-3.5 px-6 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                   {paginatedExceptions.map((exc) => (
-                    <tr key={exc.id} className="hover:bg-slate-50/60 transition">
-                      <td className="py-3.5 px-6 font-mono font-bold text-slate-900">{exc.id}</td>
+                    <tr key={exc.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition">
+                      <td className="py-3.5 px-6 font-mono font-bold text-slate-900 dark:text-slate-100">{exc.id}</td>
                       <td className="py-3.5 px-6">
                         <ExceptionTypeBadge type={exc.exception_type} />
                       </td>
-                      <td className="py-3.5 px-6 font-mono text-slate-600">{exc.source_reference || 'N/A'}</td>
-                      <td className="py-3.5 px-6 text-right font-mono font-bold text-slate-900">
+                      <td className="py-3.5 px-6 font-mono text-slate-600 dark:text-slate-400">{exc.source_reference || 'N/A'}</td>
+                      <td className="py-3.5 px-6 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
                         ₹{exc.payment_amount ? exc.payment_amount.toFixed(2) : '--'}
                       </td>
                       <td className="py-3.5 px-6 text-center">
                         <StatusBadge status={exc.status} decision={exc.decision} />
                       </td>
-                      <td className="py-3.5 px-6 text-slate-500 font-medium">
+                      <td className="py-3.5 px-6 text-slate-500 dark:text-slate-400 font-medium">
                         {new Date(exc.detected_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3.5 px-6 text-right">
                         <button
                           onClick={() => onSelectException(exc.id)}
-                          className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 transition cursor-pointer whitespace-nowrap"
+                          className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 dark:text-blue-300 dark:border-blue-800/60 transition cursor-pointer whitespace-nowrap"
                         >
                           Verify Details
                         </button>
@@ -362,9 +362,9 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs text-slate-500 font-medium">
-                Showing <span className="font-bold text-slate-900">{totalItems > 0 ? startIndex + 1 : 0}</span>–<span className="font-bold text-slate-900">{endIndex}</span> of <span className="font-bold text-slate-900">{totalItems}</span> exceptions
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Showing <span className="font-bold text-slate-900 dark:text-slate-100">{totalItems > 0 ? startIndex + 1 : 0}</span>–<span className="font-bold text-slate-900 dark:text-slate-100">{endIndex}</span> of <span className="font-bold text-slate-900 dark:text-slate-100">{totalItems}</span> exceptions
               </div>
 
               {totalPages > 1 && (
@@ -372,7 +372,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
+                    className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                     <span>Previous</span>
@@ -387,7 +387,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                         className={`h-8 w-8 rounded-lg text-xs font-bold transition cursor-pointer ${
                           currentPage === page
                             ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
                         }`}
                       >
                         {page}
@@ -398,7 +398,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
+                    className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-2xs"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-3.5 w-3.5" />

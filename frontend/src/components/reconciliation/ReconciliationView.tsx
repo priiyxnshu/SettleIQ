@@ -108,10 +108,10 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
 
   if (!stats || !stats.has_data) {
     return (
-      <div className="bg-white border border-slate-200/80 rounded-2xl text-center py-16 p-6 shadow-sm">
-        <Layers className="h-10 w-10 text-slate-400 mx-auto mb-3" />
-        <h3 className="text-base font-bold text-slate-900">No Reconciliation Results</h3>
-        <p className="text-xs text-slate-500 mt-1 mb-5">Please upload a financial dataset and trigger reconciliation to view results.</p>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl text-center py-16 p-6 shadow-sm">
+        <Layers className="h-10 w-10 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Reconciliation Results</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5">Please upload a financial dataset and trigger reconciliation to view results.</p>
         <button
           onClick={() => onNavigate('upload')}
           className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition shadow-sm cursor-pointer"
@@ -151,10 +151,10 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* 1. Compact Results Summary Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:px-6 sm:py-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:px-6 sm:py-4 shadow-sm">
         {/* Header */}
-        <div className="pb-3 border-b border-slate-100">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Results Summary</h3>
+        <div className="pb-3 border-b border-slate-100 dark:border-slate-800">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Results Summary</h3>
         </div>
 
         {/* 2-Column Compact Content */}
@@ -162,11 +162,11 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
           {/* Left Column: Run Metadata */}
           <div className="space-y-3">
             <div>
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Batch ID
               </span>
               <div className="relative group inline-block max-w-[240px] mt-0.5">
-                <p className="text-xs font-mono font-bold text-blue-600 truncate cursor-pointer hover:text-blue-700 transition">
+                <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 truncate cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition">
                   {stats.latest_run_id}
                 </p>
                 {/* Hover Tooltip revealing complete ID */}
@@ -177,58 +177,59 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
             </div>
 
             <div>
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Completed On
               </span>
-              <p className="text-xs font-medium text-slate-700 mt-0.5">
+              <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5">
                 {formatTimestamp(stats.completed_at || stats.started_at)}
               </p>
             </div>
           </div>
 
           {/* Right Column: 3 Summarized Reconciliation Metrics */}
-          <div className="space-y-1.5 justify-center flex flex-col pl-0 md:pl-6 md:border-l md:border-slate-100">
+          <div className="space-y-1.5 justify-center flex flex-col pl-0 md:pl-6 md:border-l md:border-slate-100 dark:md:border-slate-800">
             {/* 1. Payments Processed */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 transition">
+            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                <div className="h-6 w-6 rounded-md bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60 flex items-center justify-center shrink-0">
                   <Database className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-xs font-semibold text-slate-700">{METRIC_LABELS.PAYMENTS_PROCESSED}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.PAYMENTS_PROCESSED}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 font-mono">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.total_processed}
               </span>
             </div>
 
             {/* 2. Successfully Matched */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 transition">
+            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+                <div className="h-6 w-6 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60 flex items-center justify-center shrink-0">
                   <Check className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-xs font-semibold text-slate-700">{METRIC_LABELS.SUCCESSFULLY_MATCHED}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.SUCCESSFULLY_MATCHED}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 font-mono">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.matched_count}
               </span>
             </div>
 
             {/* 3. Exceptions */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 transition">
+            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+                <div className="h-6 w-6 rounded-md bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 flex items-center justify-center shrink-0">
                   <AlertTriangle className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-xs font-semibold text-slate-700">{METRIC_LABELS.EXCEPTIONS}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.EXCEPTIONS}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 font-mono">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.exceptions_count}
               </span>
             </div>
           </div>
         </div>
       </div>
+
 
       {/* Financial KPI Cards */}
       <FinancialKpiCards
@@ -238,14 +239,14 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
       />
 
       {/* 2. Primary Focus: Exception Distribution Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-7 shadow-sm">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Exception Distribution</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Exception Distribution</h3>
           </div>
           <button
             onClick={() => onNavigate('exceptions')}
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1 cursor-pointer"
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center space-x-1 cursor-pointer"
           >
             <span>View Exception Table</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -262,12 +263,12 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
             return (
               <div key={item.label} className="flex items-center gap-4 text-xs">
                 {/* Category Label */}
-                <span className="w-44 font-semibold text-slate-700 shrink-0 truncate">
+                <span className="w-44 font-semibold text-slate-700 dark:text-slate-300 shrink-0 truncate">
                   {item.label}
                 </span>
 
                 {/* Horizontal Bar Chart Lane */}
-                <div className="flex-1 h-7 bg-slate-50 border border-slate-200/70 rounded-[4px] overflow-hidden flex items-center p-0.5">
+                <div className="flex-1 h-7 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/80 rounded-[4px] overflow-hidden flex items-center p-0.5">
                   <div
                     className={`h-full rounded-[3px] ${item.color} transition-all duration-500 min-w-[3px]`}
                     style={{ width: `${rawPct}%` }}
@@ -276,8 +277,8 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
 
                 {/* Values (Items & Dynamic Percentage) */}
                 <div className="w-32 text-right font-mono text-xs shrink-0">
-                  <span className="text-slate-400 font-medium">{item.count} items </span>
-                  <span className="font-bold text-slate-900">({pctText})</span>
+                  <span className="text-slate-400 dark:text-slate-500 font-medium">{item.count} items </span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">({pctText})</span>
                 </div>
               </div>
             );
@@ -285,7 +286,7 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
         </div>
 
         {/* Chart Scale / Axis Guide */}
-        <div className="flex items-center gap-4 text-[10px] font-mono text-slate-400 pt-4 mt-2 border-t border-slate-100">
+        <div className="flex items-center gap-4 text-[10px] font-mono text-slate-400 dark:text-slate-500 pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
           <span className="w-44 shrink-0" />
           <div className="flex-1 flex justify-between px-0.5">
             <span>0%</span>
@@ -300,7 +301,7 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
 
       {/* Error Banner */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs">
           {error}
         </div>
       )}
@@ -310,9 +311,9 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
         {isAICompleted ? (
           <button
             disabled
-            className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-xs cursor-default select-none transition"
+            className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 shadow-xs cursor-default select-none transition"
           >
-            <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[2.5]" />
+            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
             <span>AI Investigation Completed</span>
           </button>
         ) : (
@@ -341,12 +342,12 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
             onClick={() => setDemoMode(!demoMode)}
             className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border transition cursor-pointer select-none ${
               demoMode
-                ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-xs'
-                : 'bg-slate-50 text-slate-400 border-slate-200/80 hover:text-slate-600 hover:bg-slate-100'
+                ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60 shadow-xs'
+                : 'bg-slate-50 text-slate-400 border-slate-200/80 hover:text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-500 dark:border-slate-800 dark:hover:text-slate-300 dark:hover:bg-slate-800'
             }`}
             title="Toggle Demo Mode to allow re-running AI Investigation on processed batches"
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${demoMode ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${demoMode ? 'bg-amber-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'}`} />
             <span>Demo Mode: <strong>{demoMode ? 'ON (Re-run Enabled)' : 'OFF'}</strong></span>
           </button>
         </div>
@@ -355,16 +356,16 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
 
       {/* AI Investigation Modal (In-Progress or Completed) */}
       {modalState !== 'hidden' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/45 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div
-            className="bg-white border border-slate-200/90 rounded-2xl w-full max-w-lg p-7 sm:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200 relative"
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl w-full max-w-lg p-7 sm:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200 relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top-Right Close Button (visible in completed state) */}
             {modalState === 'completed' && (
               <button
                 onClick={() => setModalState('hidden')}
-                className="absolute top-6 right-6 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                className="absolute top-6 right-6 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -375,16 +376,16 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
               <>
                 {/* In-Progress Header */}
                 <div className="text-center space-y-1">
-                  <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                     AI Investigation Underway
                   </h3>
-                  <p className="text-xs font-medium text-slate-500">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     Reviewing {stats.exceptions_count} exceptions
                   </p>
                 </div>
 
                 {/* 4 Steps Vertical List with Active Step Highlight */}
-                <div className="space-y-2 bg-slate-50/80 border border-slate-200/70 rounded-xl p-4">
+                <div className="space-y-2 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 rounded-xl p-4">
                   {AI_INVESTIGATION_STEPS.map((stepLabel, idx) => {
                     const isCompleted = idx < currentStepIndex;
                     const isCurrent = idx === currentStepIndex;
@@ -394,27 +395,27 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
                         key={stepLabel}
                         className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 ${
                           isCurrent
-                            ? 'bg-blue-50/90 border border-blue-200/90 shadow-sm'
+                            ? 'bg-blue-50/90 dark:bg-blue-950/60 border border-blue-200/90 dark:border-blue-800/60 shadow-sm'
                             : isCompleted
-                            ? 'bg-white/60 border border-transparent'
+                            ? 'bg-white/60 dark:bg-slate-800/60 border border-transparent'
                             : 'border border-transparent'
                         }`}
                       >
                         {isCompleted ? (
-                          <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600 shrink-0" />
+                          <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         ) : isCurrent ? (
-                          <Loader2 className="h-4.5 w-4.5 text-blue-600 animate-spin shrink-0" />
+                          <Loader2 className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
                         ) : (
-                          <div className="h-4.5 w-4.5 rounded-full border-2 border-slate-200 shrink-0 bg-white" />
+                          <div className="h-4.5 w-4.5 rounded-full border-2 border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800" />
                         )}
 
                         <span
                           className={`text-xs transition-colors ${
                             isCompleted
-                              ? 'text-slate-800 font-semibold'
+                              ? 'text-slate-800 dark:text-slate-200 font-semibold'
                               : isCurrent
-                              ? 'text-blue-700 font-bold'
-                              : 'text-slate-400 font-medium'
+                              ? 'text-blue-700 dark:text-blue-300 font-bold'
+                              : 'text-slate-400 dark:text-slate-500 font-medium'
                           }`}
                         >
                           {stepLabel}
@@ -425,8 +426,8 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
                 </div>
 
                 {/* Noticeably Thicker Progress Bar Alone (No Text, No Percentage) */}
-                <div className="pt-2 border-t border-slate-100">
-                  <div className="h-3.5 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80 shadow-inner">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="h-3.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/80 dark:border-slate-700 shadow-inner">
                     <div
                       className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out shadow-sm"
                       style={{ width: `${progressPct}%` }}
@@ -438,39 +439,39 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
               <>
                 {/* Completed State Header */}
                 <div className="text-center space-y-1">
-                  <div className="h-12 w-12 rounded-2xl bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 shadow-sm">
                     <CheckCircle2 className="h-6 w-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                     AI Investigation Complete
                   </h3>
-                  <p className="text-xs font-medium text-slate-500">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     {evalResult.total_exceptions || stats.exceptions_count} exceptions analyzed
                   </p>
                 </div>
 
                 {/* Result Summary Breakdown */}
-                <div className="space-y-3 bg-slate-50/80 border border-slate-200/70 rounded-xl p-4 sm:p-5">
+                <div className="space-y-3 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 rounded-xl p-4 sm:p-5">
                   <div className="flex items-center justify-between py-1">
                     <div className="flex items-center space-x-2.5">
-                      <div className="h-7 w-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+                      <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                         <CheckCircle2 className="h-4 w-4" />
                       </div>
-                      <span className="text-xs font-semibold text-slate-700">Auto-resolved</span>
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Auto-resolved</span>
                     </div>
-                    <span className="text-base font-bold font-mono text-emerald-700">
+                    <span className="text-base font-bold font-mono text-emerald-700 dark:text-emerald-400">
                       {evalResult.auto_resolved_count}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between py-1 border-t border-slate-200/60 pt-3">
+                  <div className="flex items-center justify-between py-1 border-t border-slate-200/60 dark:border-slate-700/60 pt-3">
                     <div className="flex items-center space-x-2.5">
-                      <div className="h-7 w-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+                      <div className="h-7 w-7 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 flex items-center justify-center text-rose-600 dark:text-rose-400">
                         <Users className="h-4 w-4" />
                       </div>
-                      <span className="text-xs font-semibold text-slate-700">Need human review</span>
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Need human review</span>
                     </div>
-                    <span className="text-base font-bold font-mono text-rose-600">
+                    <span className="text-base font-bold font-mono text-rose-600 dark:text-rose-400">
                       {evalResult.human_review_count}
                     </span>
                   </div>

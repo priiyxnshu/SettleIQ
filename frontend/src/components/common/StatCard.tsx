@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {
@@ -22,23 +22,23 @@ export const StatCard: React.FC<StatCardProps> = ({
   colorTheme = 'blue'
 }) => {
   const iconThemeStyles = {
-    blue: 'bg-blue-50 text-blue-600 border border-blue-100',
-    green: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
-    amber: 'bg-amber-50 text-amber-600 border border-amber-100',
-    purple: 'bg-purple-50 text-purple-600 border border-purple-100',
-    neutral: 'bg-slate-100 text-slate-600 border border-slate-200'
+    blue: 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60',
+    green: 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60',
+    amber: 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
+    purple: 'bg-purple-50 text-purple-600 border border-purple-100 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-800/60',
+    neutral: 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
   };
 
   const badgeThemeStyles = {
-    success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    warning: 'bg-amber-50 text-amber-700 border-amber-200',
-    info: 'bg-blue-50 text-blue-700 border-blue-200',
-    purple: 'bg-purple-50 text-purple-700 border-purple-200',
-    neutral: 'bg-slate-100 text-slate-600 border-slate-200'
+    success: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60',
+    warning: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60',
+    info: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/60',
+    neutral: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
   };
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
       {/* Top Row: Icon Container & Top-Right Badge */}
       <div className="flex items-start justify-between">
         <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner ${iconThemeStyles[colorTheme]}`}>
@@ -53,14 +53,14 @@ export const StatCard: React.FC<StatCardProps> = ({
 
       {/* Center & Bottom: Large Metric Value & Labels */}
       <div className="mt-5 space-y-1">
-        <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <div className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           {value}
         </div>
-        <div className="text-sm font-bold text-slate-800">
+        <div className="text-sm font-bold text-slate-800 dark:text-slate-300">
           {label}
         </div>
         {subtext && (
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {subtext}
           </p>
         )}

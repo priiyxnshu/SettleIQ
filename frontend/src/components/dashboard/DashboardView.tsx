@@ -13,11 +13,10 @@ import {
   FileSpreadsheet,
   Sparkles
 } from 'lucide-react';
-import type { DashboardStats, ExceptionListItem, UploadHistoryItem } from '../../types';
+import type { DashboardStats, UploadHistoryItem } from '../../types';
 import { useUser } from '../../context/UserContext';
 import { StatCard } from '../common/StatCard';
 import { FinancialKpiCards } from '../common/FinancialKpiCards';
-import { ExceptionTypeBadge, StatusBadge } from '../common/Badge';
 import { EmptyState } from '../common/EmptyState';
 import { getUploadHistory } from '../../services/api';
 import { METRIC_LABELS } from '../../constants/metrics';
@@ -26,7 +25,6 @@ interface DashboardViewProps {
   stats: DashboardStats | null;
   loading?: boolean;
   onNavigate: (tab: any) => void;
-  onSelectException: (id: string) => void;
 }
 
 interface FlattenedFileEntry {
@@ -39,8 +37,7 @@ interface FlattenedFileEntry {
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   stats,
-  onNavigate,
-  onSelectException
+  onNavigate
 }) => {
   const { currentUser } = useUser();
   const [recentUploads, setRecentUploads] = useState<FlattenedFileEntry[]>([]);
@@ -214,13 +211,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Middle Section: 2 Side-by-Side Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Left Card: Latest Reconciliation Run + Embedded Recent Uploads */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
           <div>
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center space-x-2.5">
-                <RotateCw className="h-4 w-4 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-900">Latest Reconciliation Run</h3>
+                <RotateCw className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Latest Reconciliation Run</h3>
               </div>
               {isAnalyst && (
                 <button
@@ -234,7 +231,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {isManager && (
                 <button
                   onClick={() => onNavigate('reconciliation')}
-                  className="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 transition cursor-pointer"
+                  className="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 dark:text-blue-300 dark:border-blue-800/60 transition cursor-pointer"
                 >
                   <span>View Results</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -247,12 +244,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Left Column: Essential Run Details */}
               <div className="space-y-4">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Batch ID
                   </span>
                   {/* Interactive Truncated Batch ID with Hover Popover */}
                   <div className="relative group inline-block max-w-[170px] mt-1">
-                    <p className="text-xs font-mono font-bold text-blue-600 truncate cursor-pointer hover:text-blue-700 transition">
+                    <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 truncate cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition">
                       {stats.latest_run_id}
                     </p>
                     {/* Hover Tooltip revealing complete ID */}
@@ -263,60 +260,60 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Status
                   </span>
                   <div className="mt-1">
-                    <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>{stats.run_status || 'Completed'}</span>
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Completed On
                   </span>
-                  <p className="text-xs font-medium text-slate-700 mt-1">
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-1">
                     {formatTimestamp(stats.completed_at || stats.started_at)}
                   </p>
                 </div>
               </div>
 
               {/* Right Column: Embedded Recent Uploads (3 Files) */}
-              <div className="bg-slate-50/60 rounded-xl p-3.5 border border-slate-100">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 mb-1">
+              <div className="bg-slate-50/60 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-700/60 mb-1">
                   <div className="flex items-center space-x-1.5">
-                    <History className="h-3.5 w-3.5 text-slate-600" />
-                    <span className="text-xs font-bold text-slate-800">Recent Uploads</span>
+                    <History className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Recent Uploads</span>
                   </div>
                   <button
                     onClick={fetchRecentUploads}
                     disabled={loadingUploads}
                     title="Refresh uploads"
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/60 transition cursor-pointer"
                   >
                     <RotateCw className={`h-3 w-3 ${loadingUploads ? 'animate-spin text-blue-600' : ''}`} />
                   </button>
                 </div>
 
                 {recentUploads.length === 0 ? (
-                  <div className="py-4 text-center text-[11px] text-slate-400">
+                  <div className="py-4 text-center text-[11px] text-slate-400 dark:text-slate-500">
                     No uploads available.
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                     {recentUploads.map((file) => (
                       <div key={file.id} className="py-2 flex items-center justify-between">
                         <div className="flex items-center space-x-2.5 min-w-0">
                           <div
                             className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${
                               file.fileType === 'payments'
-                                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                ? 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60'
                                 : file.fileType === 'settlements'
-                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                                : 'bg-purple-50 text-purple-600 border border-purple-100'
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60'
+                                : 'bg-purple-50 text-purple-600 border border-purple-100 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-800/60'
                             }`}
                           >
                             {file.fileType === 'settlements' ? (
@@ -326,15 +323,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[11px] font-bold text-slate-800 truncate max-w-[90px]">
+                            <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate max-w-[90px]">
                               {file.filename}
                             </p>
-                            <p className="text-[10px] text-slate-400 font-medium truncate">
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
                               {formatTimestamp(file.uploadedAt)}
                             </p>
                           </div>
                         </div>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 shrink-0">
                           {file.status}
                         </span>
                       </div>
@@ -346,8 +343,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
+
         {/* Right Card: Dynamic Donut Chart & Reconciliation Breakdown */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
               {/* Left Side: Prominent SVG Donut Chart */}
@@ -359,8 +357,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     cy="80"
                     r={r}
                     fill="transparent"
-                    stroke="#F1F5F9"
                     strokeWidth="16"
+                    className="stroke-[#F1F5F9] dark:stroke-[#1e293b]"
                   />
 
                   {/* Mutually Exclusive Colored Slices */}
@@ -390,10 +388,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 {/* Center Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-extrabold text-slate-900 font-mono tracking-tight">
+                  <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
                     {stats.match_rate}%
                   </span>
-                  <span className="text-xs font-bold text-slate-400 -mt-0.5">Matched</span>
+                  <span className="text-xs font-bold text-slate-400 dark:text-slate-500 -mt-0.5">Matched</span>
                 </div>
               </div>
 
@@ -403,9 +401,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1.5 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 truncate">{METRIC_LABELS.MATCHED}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.MATCHED}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 ml-2 shrink-0">
+                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
                     {matched} ({formatPct(matched, total)})
                   </span>
                 </div>
@@ -414,9 +412,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1.5 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 truncate">{METRIC_LABELS.EXCEPTIONS}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.EXCEPTIONS}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 ml-2 shrink-0">
+                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
                     {exceptionsTotal} ({formatPct(exceptionsTotal, total)})
                   </span>
                 </div>
@@ -425,9 +423,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1.5 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-purple-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 truncate">{METRIC_LABELS.SENT_FOR_REVIEW}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.SENT_FOR_REVIEW}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 ml-2 shrink-0">
+                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
                     {underReview} ({formatPct(underReview, total)})
                   </span>
                 </div>
@@ -436,9 +434,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1.5 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-slate-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 truncate">{METRIC_LABELS.AUTO_RESOLVED}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.AUTO_RESOLVED}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 ml-2 shrink-0">
+                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
                     {autoResolved} ({formatPct(autoResolved, total)})
                   </span>
                 </div>
@@ -446,7 +444,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Bottom Callout Banner (Subtle & Compact) */}
-            <div className="mt-3.5 px-3 py-2 rounded-lg bg-blue-50/50 border border-blue-100/70 flex items-center space-x-2 text-[11px] text-slate-600 font-medium">
+            <div className="mt-3.5 px-3 py-2 rounded-lg bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100/70 dark:border-blue-900/50 flex items-center space-x-2 text-[11px] text-slate-600 dark:text-slate-300 font-medium">
               <Sparkles className="h-3.5 w-3.5 text-blue-500 shrink-0" />
               <span>
                 {autoResolved > 0
@@ -457,79 +455,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Recent Exceptions Table */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900">Recent Exceptions</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {isManager
-                ? 'Flagged financial discrepancies ready for investigation and guardrail review'
-                : 'Operational summary of discrepancies flagged during reconciliation'}
-            </p>
-          </div>
-          {isManager && (
-            <button
-              onClick={() => onNavigate('exceptions')}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1 cursor-pointer"
-            >
-              <span>View All Exceptions</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-200/80 uppercase tracking-wider">
-              <tr>
-                <th className="py-3.5 px-6">Exception ID</th>
-                <th className="py-3.5 px-6">Type</th>
-                <th className="py-3.5 px-6">Payment Reference</th>
-                <th className="py-3.5 px-6 text-right">Amount</th>
-                <th className="py-3.5 px-6 text-center">Status</th>
-                {isManager && <th className="py-3.5 px-6 text-right">Action</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {stats.recent_exceptions.length === 0 ? (
-                <tr>
-                  <td colSpan={isManager ? 6 : 5} className="py-8 text-center text-slate-500">
-                    No exceptions in this batch. All records matched cleanly!
-                  </td>
-                </tr>
-              ) : (
-                stats.recent_exceptions.map((exc: ExceptionListItem) => (
-                  <tr key={exc.id} className="hover:bg-slate-50/60 transition">
-                    <td className="py-4 px-6 font-mono font-bold text-slate-900">{exc.id}</td>
-                    <td className="py-4 px-6">
-                      <ExceptionTypeBadge type={exc.exception_type} />
-                    </td>
-                    <td className="py-4 px-6 font-mono text-slate-600">{exc.source_reference || 'N/A'}</td>
-                    <td className="py-4 px-6 text-right font-mono font-bold text-slate-900">
-                      ₹{exc.payment_amount ? exc.payment_amount.toFixed(2) : '--'}
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      <StatusBadge status={exc.status} decision={exc.decision} />
-                    </td>
-                    {isManager && (
-                      <td className="py-4 px-6 text-right">
-                        <button
-                          onClick={() => onSelectException(exc.id)}
-                          className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 transition cursor-pointer whitespace-nowrap"
-                        >
-                          Verify Details
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

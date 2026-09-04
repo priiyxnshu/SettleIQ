@@ -80,7 +80,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
       {/* Persistent Navigation Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -90,24 +90,20 @@ const AppContent: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8fafc]">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8fafc] dark:bg-slate-950">
         <Header
           title={titles[activeTab]?.title || 'Dashboard'}
           subtitle={titles[activeTab]?.subtitle}
         />
 
-        <main className="flex-1 overflow-y-auto p-8 bg-[#f8fafc]">
+        <main className="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-slate-950">
           <div className="max-w-7xl mx-auto">
+
             {activeTab === 'dashboard' && (
               <DashboardView
                 stats={dashboardStats}
                 loading={loading}
                 onNavigate={setActiveTab}
-                onSelectException={(id) => {
-                  if (hasPermission('exceptions')) {
-                    setSelectedExceptionId(id);
-                  }
-                }}
               />
             )}
 

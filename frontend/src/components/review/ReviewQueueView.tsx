@@ -232,23 +232,23 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
           {queueItems.length} Reviews Pending
         </span>
 
-        <div className="flex items-center space-x-1.5 text-xs text-slate-700 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
-          <UserCheck className="h-3.5 w-3.5 text-blue-600" />
-          <span>Reviewer: <strong className="text-slate-900">{currentUser.name}</strong></span>
+        <div className="flex items-center space-x-1.5 text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 px-3 py-1 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <UserCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+          <span>Reviewer: <strong className="text-slate-900 dark:text-slate-100">{currentUser.name}</strong></span>
         </div>
       </div>
 
       {/* Top-Center Floating Success Toast */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center space-x-2.5 bg-white border border-slate-200/90 text-slate-800 px-4 py-2 rounded-xl shadow-lg shadow-slate-900/10 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200 pointer-events-none">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center space-x-2.5 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-4 py-2 rounded-xl shadow-lg shadow-slate-900/10 dark:shadow-slate-950/50 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200 pointer-events-none">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {actionErrorMessage && (
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-          <XCircle className="h-4 w-4 shrink-0 text-rose-600" />
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-200 text-xs flex items-center space-x-2">
+          <XCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
           <span>{actionErrorMessage}</span>
         </div>
       )}
@@ -264,51 +264,51 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left: Queue List */}
-          <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100 max-h-[640px] overflow-y-auto">
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800 max-h-[640px] overflow-y-auto">
             {queueItems.map((item) => {
               const isSelected = selectedExcId === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setSelectedExcId(item.id)}
-                  className={`w-full text-left py-2.5 px-3.5 transition flex items-center justify-between ${
+                  className={`w-full text-left py-2.5 px-3.5 transition flex items-center justify-between cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-50/70 border-l-4 border-blue-600 text-slate-900'
-                      : 'hover:bg-slate-50 text-slate-700'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/50 border-l-4 border-blue-600 text-slate-900 dark:text-slate-100'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   <div className="space-y-0.5 overflow-hidden pr-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-mono font-bold text-slate-900 truncate">{item.id}</span>
+                      <span className="text-xs font-mono font-bold text-slate-900 dark:text-slate-100 truncate">{item.id}</span>
                       <ExceptionTypeBadge type={item.exception_type} />
                     </div>
-                    <p className="text-[11px] text-slate-500 font-mono truncate">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">
                       Ref: {item.source_reference || 'N/A'} • ₹{item.payment_amount ? item.payment_amount.toFixed(2) : '--'}
                     </p>
                   </div>
-                  <ChevronRight className={`h-4 w-4 shrink-0 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <ChevronRight className={`h-4 w-4 shrink-0 ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                 </button>
               );
             })}
           </div>
 
           {/* Right: Inspection & Decision Workspace */}
-          <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
             {detailLoading || !selectedDetail ? (
               <LoadingSpinner message="Loading exception review workspace..." />
             ) : (
               <>
                 {/* Workspace Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Exception Review</span>
-                    <h3 className="text-base font-bold font-mono text-slate-900 mt-0.5">{selectedDetail.id}</h3>
+                    <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Exception Review</span>
+                    <h3 className="text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">{selectedDetail.id}</h3>
                   </div>
                   <div className="flex items-center space-x-3">
                     <ExceptionTypeBadge type={selectedDetail.exception_type} />
                     <button
                       onClick={() => onSelectException(selectedDetail.id)}
-                      className="inline-flex items-center space-x-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline underline-offset-2 ml-1"
+                      className="inline-flex items-center space-x-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline underline-offset-2 ml-1 cursor-pointer"
                     >
                       <span>Verify Details</span>
                     </button>
@@ -316,57 +316,57 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                 </div>
 
                 {/* Financial Summary Box */}
-                <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 font-mono text-xs">
+                <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 font-mono text-xs">
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Payment</span>
-                    <span className="text-slate-900 font-bold text-sm">
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Payment</span>
+                    <span className="text-slate-900 dark:text-slate-100 font-bold text-sm">
                       ₹{selectedDetail.payment ? selectedDetail.payment.payment_amount.toFixed(2) : '0.00'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Settlement</span>
-                    <span className="text-slate-900 font-bold text-sm">
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Settlement</span>
+                    <span className="text-slate-900 dark:text-slate-100 font-bold text-sm">
                       ₹{selectedDetail.settlements.reduce((sum, s) => sum + s.settlement_amount, 0).toFixed(2)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Fees</span>
-                    <span className="text-slate-900 font-bold text-sm">
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Fees</span>
+                    <span className="text-slate-900 dark:text-slate-100 font-bold text-sm">
                       ₹{selectedDetail.fees.reduce((sum, f) => sum + f.fee_amount, 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
                 {/* Why this needs review */}
-                <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs space-y-1">
+                <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/60 text-xs space-y-1">
                   <div className="flex items-center space-x-1.5">
-                    <span className="font-bold text-amber-900 uppercase tracking-wider text-[11px]">Why this needs review</span>
+                    <span className="font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider text-[11px]">Why this needs review</span>
                     <div className="relative group inline-flex items-center">
-                      <Info className="h-3.5 w-3.5 text-amber-800/70 hover:text-amber-950 cursor-help transition shrink-0" />
+                      <Info className="h-3.5 w-3.5 text-amber-800/70 dark:text-amber-400 hover:text-amber-950 dark:hover:text-amber-200 cursor-help transition shrink-0" />
                       <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover:flex flex-col z-30 w-56 p-2 rounded-lg bg-slate-900 border border-slate-700/90 shadow-2xl text-[11px] font-normal text-slate-200 pointer-events-none leading-relaxed text-center animate-in fade-in duration-150">
                         To verify this exception, click Verify Details to review the supporting evidence.
                       </div>
                     </div>
                   </div>
-                  <p className="text-amber-900 leading-relaxed font-normal">
+                  <p className="text-amber-900 dark:text-amber-200/90 leading-relaxed font-normal">
                     {getWhyNeedsReviewExplanation(selectedDetail)}
                   </p>
                 </div>
 
                 {/* Operator Actions Form */}
-                <div className="space-y-3 pt-1 border-t border-slate-100">
+                <div className="space-y-3 pt-1 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
-                      <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+                      <MessageSquare className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                       <span>Review Notes (optional)</span>
                     </label>
                     <div className="flex items-center space-x-2 text-xs">
-                      <span className="text-slate-500">Signing as:</span>
+                      <span className="text-slate-500 dark:text-slate-400">Signing as:</span>
                       <input
                         type="text"
                         value={operatorName}
                         onChange={(e) => setOperatorName(e.target.value)}
-                        className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-semibold"
+                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-0.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
                       />
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                     placeholder="Add notes about your review decision..."
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
 
                   {/* 3 Explicit Action Buttons */}
@@ -385,7 +385,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                       type="button"
                       onClick={() => handleReviewAction('KEEP_UNRESOLVED')}
                       disabled={submitting}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                     >
                       Keep Pending
                     </button>
@@ -393,7 +393,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                       type="button"
                       onClick={() => setConfirmAction('REJECT')}
                       disabled={submitting}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 hover:bg-rose-100/80 text-rose-700 border border-rose-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100/80 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                     >
                       Reject
                     </button>
@@ -417,18 +417,18 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
       {/* Confirmation Dialog for Reject / Approve */}
       {confirmAction && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
           onClick={() => !submitting && setConfirmAction(null)}
         >
           <div 
-            className="bg-white border border-slate-200 rounded-2xl p-5 max-w-sm w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 max-w-sm w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start space-x-3.5">
               <div className={`p-2.5 rounded-full shrink-0 ${
                 confirmAction === 'REJECT' 
-                  ? 'bg-rose-50 border border-rose-200 text-rose-600' 
-                  : 'bg-emerald-50 border border-emerald-200 text-emerald-600'
+                  ? 'bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-rose-600 dark:text-rose-400' 
+                  : 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-emerald-600 dark:text-emerald-400'
               }`}>
                 {confirmAction === 'REJECT' ? (
                   <AlertCircle className="h-5 w-5" />
@@ -437,10 +437,10 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {confirmAction === 'REJECT' ? 'Reject Exception' : 'Approve & Resolve'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {confirmAction === 'REJECT'
                     ? 'Are you sure you want to reject this exception?'
                     : 'Are you sure you want to approve and resolve this exception?'}
@@ -448,12 +448,12 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
                 disabled={submitting}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs transition disabled:opacity-50 cursor-pointer"
               >
                 No
               </button>
