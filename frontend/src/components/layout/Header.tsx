@@ -1,15 +1,17 @@
 import React from 'react';
-import { Sun, Moon, Calendar } from 'lucide-react';
+import { Sun, Moon, Calendar, Menu } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 interface HeaderProps {
   title: string;
   actions?: React.ReactNode;
+  onToggleMobileMenu?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   title,
-  actions
+  actions,
+  onToggleMobileMenu
 }) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -20,9 +22,19 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   return (
-    <header className="h-16 bg-[#e8edf5]/95 dark:bg-slate-950/95 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20 transition-all">
-      <div>
-        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{title}</h2>
+    <header className="h-16 bg-[#e8edf5]/95 dark:bg-slate-950/95 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between sticky top-0 z-20 transition-all">
+      <div className="flex items-center gap-3">
+        {onToggleMobileMenu && (
+          <button
+            onClick={onToggleMobileMenu}
+            type="button"
+            aria-label="Open navigation menu"
+            className="md:hidden neu-extruded-btn h-9 w-9 rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 shrink-0 cursor-pointer"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+        )}
+        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{title}</h2>
       </div>
       <div className="flex items-center space-x-3">
         {actions}

@@ -151,78 +151,80 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* 1. Compact Results Summary Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:px-6 sm:py-4 shadow-sm">
+      <div className="neu-extruded rounded-xl p-3.5 sm:px-5 sm:py-3.5">
         {/* Header */}
-        <div className="pb-3 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Results Summary</h3>
+        <div className="pb-2.5 border-b border-slate-300/60 dark:border-slate-800 flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Results Summary</h3>
         </div>
 
         {/* 2-Column Compact Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-3">
           {/* Left Column: Run Metadata */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div>
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                 Batch ID
               </span>
-              <div className="relative group inline-block max-w-[240px] mt-0.5">
-                <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 truncate cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition">
-                  {stats.latest_run_id}
-                </p>
-                {/* Hover Tooltip revealing complete ID */}
-                <div className="absolute left-0 top-full mt-1.5 hidden group-hover:flex items-center z-30 bg-slate-900 text-slate-100 px-3 py-1.5 rounded-lg shadow-xl border border-slate-700 text-[11px] font-mono whitespace-nowrap animate-in fade-in duration-150 pointer-events-none select-all">
-                  <span>{stats.latest_run_id}</span>
+              <div className="neu-inset-subtle px-2.5 py-1.5 rounded-lg border border-white/60 dark:border-white/5 mt-1 flex items-center justify-between max-w-[280px]">
+                <div className="relative group min-w-0">
+                  <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 truncate cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition">
+                    {stats.latest_run_id}
+                  </p>
+                  {/* Hover Tooltip revealing complete ID */}
+                  <div className="absolute left-0 top-full mt-1.5 hidden group-hover:flex items-center z-30 neu-extruded-sm bg-[#e8edf5] dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-3 py-1.5 rounded-lg shadow-xl border border-white/80 dark:border-white/10 text-[11px] font-mono whitespace-nowrap animate-in fade-in duration-150 pointer-events-none select-all">
+                    <span>{stats.latest_run_id}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                 Completed On
               </span>
-              <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5">
+              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
                 {formatTimestamp(stats.completed_at || stats.started_at)}
               </p>
             </div>
           </div>
 
           {/* Right Column: 3 Summarized Reconciliation Metrics */}
-          <div className="space-y-1.5 justify-center flex flex-col pl-0 md:pl-6 md:border-l md:border-slate-100 dark:md:border-slate-800">
+          <div className="space-y-1.5 justify-center flex flex-col pl-0 md:pl-5 md:border-l md:border-slate-300/60 dark:md:border-slate-800">
             {/* 1. Payments Processed */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
+            <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg neu-inset-subtle border border-white/60 dark:border-white/5 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60 flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-md neu-extruded-sm flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
                   <Database className="h-3.5 w-3.5" />
                 </div>
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.PAYMENTS_PROCESSED}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.total_processed}
               </span>
             </div>
 
             {/* 2. Successfully Matched */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
+            <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg neu-inset-subtle border border-white/60 dark:border-white/5 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60 flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-md neu-extruded-sm flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <Check className="h-3.5 w-3.5" />
                 </div>
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.SUCCESSFULLY_MATCHED}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.matched_count}
               </span>
             </div>
 
             {/* 3. Exceptions */}
-            <div className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
+            <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg neu-inset-subtle border border-white/60 dark:border-white/5 transition">
               <div className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-md bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-md neu-extruded-sm flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
                   <AlertTriangle className="h-3.5 w-3.5" />
                 </div>
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{METRIC_LABELS.EXCEPTIONS}</span>
               </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 font-mono">
                 {stats.exceptions_count}
               </span>
             </div>

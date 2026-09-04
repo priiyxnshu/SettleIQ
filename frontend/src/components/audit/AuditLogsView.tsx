@@ -373,15 +373,22 @@ export const AuditLogsView: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-230px)] min-h-[300px]">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-230px)] min-h-[350px]">
+            <table className="w-full table-fixed text-left text-xs min-w-[760px]">
+              <colgroup>
+                <col className="w-[24%]" style={{ width: '24%' }} />
+                <col className="w-[26%]" style={{ width: '26%' }} />
+                <col className="w-[14%]" style={{ width: '14%' }} />
+                <col className="w-[24%]" style={{ width: '24%' }} />
+                <col className="w-[12%]" style={{ width: '12%' }} />
+              </colgroup>
               <thead className="bg-slate-50/95 dark:bg-slate-800/90 sticky top-0 z-10 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200/80 dark:border-slate-800 uppercase tracking-wider text-[11px] backdrop-blur-xs">
                 <tr>
-                  <th className="py-3 px-5">Timestamp</th>
-                  <th className="py-3 px-5">Action</th>
-                  <th className="py-3 px-5">Exception / Entity</th>
-                  <th className="py-3 px-5">Performed By</th>
-                  <th className="py-3 px-5 text-right">Details</th>
+                  <th className="py-3 px-4 sm:px-5 whitespace-nowrap">Timestamp</th>
+                  <th className="py-3 px-4 sm:px-5 whitespace-nowrap">Action</th>
+                  <th className="py-3 px-4 sm:px-5 whitespace-nowrap">Exception</th>
+                  <th className="py-3 px-4 sm:px-5 whitespace-nowrap">Performed By</th>
+                  <th className="py-3 px-4 sm:px-5 text-right whitespace-nowrap">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
@@ -392,34 +399,31 @@ export const AuditLogsView: React.FC = () => {
                   return (
                     <React.Fragment key={log.id}>
                       <tr className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition ${isExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}>
-                        <td className="py-3.5 px-5 font-mono text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs">
+                        <td className="py-3.5 px-4 sm:px-5 font-mono text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs">
                           {new Date(log.created_at).toLocaleString()}
                         </td>
-                        <td className="py-3.5 px-5 whitespace-nowrap">
+                        <td className="py-3.5 px-4 sm:px-5 whitespace-nowrap">
                           <ActionBadge action={log.action_type} />
                         </td>
-                        <td className="py-3.5 px-5 font-mono text-slate-900 dark:text-slate-100 whitespace-nowrap text-xs">
-                          <span className="text-slate-400 dark:text-slate-500 font-sans text-[10px] mr-1.5 uppercase font-bold tracking-wider">
-                            {log.entity_type}
-                          </span>
+                        <td className="py-3.5 px-4 sm:px-5 font-mono text-slate-900 dark:text-slate-100 whitespace-nowrap text-xs">
                           {log.entity_id}
                         </td>
-                        <td className="py-3.5 px-5 text-xs whitespace-nowrap">
-                          <div className="flex items-center space-x-1.5">
+                        <td className="py-3.5 px-4 sm:px-5 text-xs whitespace-nowrap">
+                          <div className="flex items-center space-x-1.5 overflow-hidden">
                             {performedBy === 'System' ? (
                               <span className="inline-flex items-center text-slate-500 dark:text-slate-400">
-                                <Server className="h-3.5 w-3.5 mr-1 text-slate-400 dark:text-slate-500" />
+                                <Server className="h-3.5 w-3.5 mr-1 text-slate-400 dark:text-slate-500 shrink-0" />
                                 System
                               </span>
                             ) : (
-                              <span className="inline-flex items-center font-semibold text-slate-900 dark:text-slate-100">
-                                <UserCheck className="h-3.5 w-3.5 mr-1 text-blue-600 dark:text-blue-400" />
-                                {performedBy}
+                              <span className="inline-flex items-center font-semibold text-slate-900 dark:text-slate-100 truncate">
+                                <UserCheck className="h-3.5 w-3.5 mr-1 text-blue-600 dark:text-blue-400 shrink-0" />
+                                <span className="truncate">{performedBy}</span>
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-3.5 px-5 text-right whitespace-nowrap">
+                        <td className="py-3.5 px-4 sm:px-5 text-right whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => setExpandedLogId(isExpanded ? null : log.id)}

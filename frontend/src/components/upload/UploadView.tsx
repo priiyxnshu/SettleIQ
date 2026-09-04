@@ -47,6 +47,51 @@ export const UploadView: React.FC<UploadViewProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
+
+  const [showConfirmReconciliation, setShowConfirmReconciliation] = useState(false);
+  const [progressModal, setProgressModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    subtitle?: string;
+    steps: string[];
+    currentStepIndex: number;
+    progressPct: number;
+  } | null>(null);
+
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const VALIDATION_STEPS = [
+    'Validating file formats',
+    'Checking transaction data',
+    'Validating uploaded records'
+  ];
+
+  const RECONCILIATION_STEPS = [
+    'Preparing transaction data',
+    'Reconciling records',
+    'Finalizing reconciliation'
+  ];
+
+  const showToast = (msg: string) => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(msg);
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const [uploadHistory, setUploadHistory] = useState<UploadHistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -78,25 +123,96 @@ export const UploadView: React.FC<UploadViewProps> = ({
     }
     setUploading(true);
     setErrorMessage(null);
+    setProgressModal({
+      isOpen: true,
+      title: 'Validating Financial Files',
+      subtitle: 'Analyzing payments, settlements, and fee records',
+      steps: VALIDATION_STEPS,
+      currentStepIndex: 0,
+      progressPct: 30
+    });
+
     try {
-      const res = await uploadFinancialData(paymentsFile, settlementsFile, feesFile);
+      const apiPromise = uploadFinancialData(paymentsFile, settlementsFile, feesFile);
+
+      // Step 0: Validating file formats
+      await delay(320);
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 1, progressPct: 65 } : null));
+
+      // Step 1: Checking transaction data
+      await delay(350);
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 2, progressPct: 90 } : null));
+
+      // Step 2: Validating uploaded records & await backend upload
+      const [res] = await Promise.all([
+        apiPromise,
+        delay(330)
+      ]);
+
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 3, progressPct: 100 } : null));
+      await delay(150);
+
+      // Close modal & show toast
+      setProgressModal(null);
+      showToast('Validation completed');
       setUploadResult(res);
       await fetchHistory(); // Await history refresh immediately
     } catch (err: any) {
+      setProgressModal(null);
       setErrorMessage(err.message || 'Upload failed');
     } finally {
       setUploading(false);
     }
   };
 
-  const handleStartReconciliation = async () => {
+  const handleStartReconciliationClick = () => {
     if (!uploadResult?.reconciliation_run_id) return;
+    setShowConfirmReconciliation(true);
+  };
+
+  const executeReconciliation = async () => {
+    if (!uploadResult?.reconciliation_run_id) return;
+    setShowConfirmReconciliation(false);
     setReconciling(true);
     setErrorMessage(null);
+    setProgressModal({
+      isOpen: true,
+      title: 'Reconciliation Underway',
+      subtitle: 'Matching payments against settlement advice',
+      steps: RECONCILIATION_STEPS,
+      currentStepIndex: 0,
+      progressPct: 30
+    });
+
     try {
-      const res = await runReconciliation(uploadResult.reconciliation_run_id);
+      const apiPromise = runReconciliation(uploadResult.reconciliation_run_id);
+
+      // Step 0: Preparing transaction data
+      await delay(320);
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 1, progressPct: 65 } : null));
+
+      // Step 1: Reconciling records
+      await delay(350);
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 2, progressPct: 90 } : null));
+
+      // Step 2: Finalizing reconciliation & await backend run
+      const [res] = await Promise.all([
+        apiPromise,
+        delay(330)
+      ]);
+
+      setProgressModal((prev) => (prev ? { ...prev, currentStepIndex: 3, progressPct: 100 } : null));
+      await delay(150);
+
+      // Close progress modal & show toast
+      setProgressModal(null);
+      showToast('Reconciliation completed');
+
+      // Allow toast to be seen briefly before navigation
+      await delay(900);
       onReconciliationCompleted(res.reconciliation_run_id);
     } catch (err: any) {
+      setProgressModal(null);
       setErrorMessage(err.message || 'Reconciliation failed');
       setReconciling(false);
     }
@@ -510,7 +626,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
             ) : (
               <>
                 <FileCheck className="h-4 w-4" />
-                <span>Validate Files</span>
+                <span>Start Validation</span>
               </>
             )}
           </button>
@@ -574,7 +690,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
           {/* Centered Start Reconciliation Action */}
           <div className="flex justify-center pt-2">
             <button
-              onClick={handleStartReconciliation}
+              onClick={handleStartReconciliationClick}
               disabled={reconciling}
               className="inline-flex items-center space-x-2.5 px-8 py-3.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white transition-all shadow-md shadow-blue-600/25 hover:shadow-lg hover:shadow-blue-600/30 cursor-pointer"
             >
@@ -590,6 +706,133 @@ export const UploadView: React.FC<UploadViewProps> = ({
                 </>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Top-Center Floating Success Toast */}
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center space-x-2.5 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-4 py-2 rounded-xl shadow-lg shadow-slate-900/10 dark:shadow-slate-950/50 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200 pointer-events-none">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Start Reconciliation */}
+      {showConfirmReconciliation && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
+          onClick={() => !reconciling && setShowConfirmReconciliation(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 max-w-sm w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2.5 rounded-full shrink-0 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/60 text-blue-600 dark:text-blue-400">
+                <Play className="h-5 w-5 fill-current" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Start Reconciliation
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Are you sure you want to start reconciliation?
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setShowConfirmReconciliation(false)}
+                disabled={reconciling}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={executeReconciliation}
+                disabled={reconciling}
+                className="px-4 py-1.5 rounded-xl text-xs font-semibold text-white shadow-sm transition disabled:opacity-50 cursor-pointer bg-blue-600 hover:bg-blue-700"
+              >
+                Yes, Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progress Modal (Validation & Reconciliation) */}
+      {progressModal?.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="text-center space-y-1">
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                {progressModal.title}
+              </h3>
+              {progressModal.subtitle && (
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  {progressModal.subtitle}
+                </p>
+              )}
+            </div>
+
+            {/* Steps Vertical List with Active Step Highlight */}
+            <div className="space-y-2 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 rounded-xl p-3.5">
+              {progressModal.steps.map((stepLabel, idx) => {
+                const isCompleted = idx < progressModal.currentStepIndex;
+                const isCurrent = idx === progressModal.currentStepIndex;
+
+                return (
+                  <div
+                    key={stepLabel}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-xl transition-all duration-300 ${
+                      isCurrent
+                        ? 'bg-blue-50/90 dark:bg-blue-950/60 border border-blue-200/90 dark:border-blue-800/60 shadow-sm'
+                        : isCompleted
+                        ? 'bg-white/60 dark:bg-slate-800/60 border border-transparent'
+                        : 'border border-transparent'
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    ) : isCurrent ? (
+                      <Loader2 className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
+                    ) : (
+                      <div className="h-4 w-4 rounded-full border-2 border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800" />
+                    )}
+
+                    <span
+                      className={`text-xs transition-colors ${
+                        isCompleted
+                          ? 'text-slate-800 dark:text-slate-200 font-semibold'
+                          : isCurrent
+                          ? 'text-blue-700 dark:text-blue-300 font-bold'
+                          : 'text-slate-400 dark:text-slate-500 font-medium'
+                      }`}
+                    >
+                      {stepLabel}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/80 dark:border-slate-700 shadow-inner">
+                <div
+                  className="h-full bg-blue-600 rounded-full transition-all duration-300 ease-out shadow-sm"
+                  style={{ width: `${progressModal.progressPct}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
