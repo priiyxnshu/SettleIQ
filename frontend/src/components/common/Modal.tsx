@@ -5,7 +5,6 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  subtitle?: string;
   children: React.ReactNode;
   maxWidth?: string;
   bodyClassName?: string;
@@ -15,7 +14,6 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
-  subtitle,
   children,
   maxWidth = 'max-w-4xl',
   bodyClassName
@@ -46,7 +44,6 @@ export const Modal: React.FC<ModalProps> = ({
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
           <div>
             <h3 className="text-base font-bold text-white tracking-tight">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}

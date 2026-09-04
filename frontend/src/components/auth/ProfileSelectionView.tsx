@@ -24,8 +24,8 @@ export const ProfileSelectionView: React.FC = () => {
       <div className="max-w-6xl w-full mx-auto flex items-center justify-between z-10">
         <div className="flex items-center space-x-3">
           <img src={logoImg} alt="SettleIQ Logo" className="h-9 w-auto object-contain" />
-          <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-            SettleIQ
+          <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-[#E6E6E6] leading-tight">
+            Settle<span className="bg-gradient-to-r from-[#007ADE] to-[#01A8D9] bg-clip-text text-transparent font-black">IQ</span>
           </span>
         </div>
         <div className="hidden sm:flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">

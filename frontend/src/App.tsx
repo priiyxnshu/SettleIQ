@@ -52,35 +52,17 @@ const AppContent: React.FC = () => {
     return <ProfileSelectionView />;
   }
 
-  const titles: Record<NavTab, { title: string; subtitle: string }> = {
-    dashboard: {
-      title: 'Dashboard',
-      subtitle: 'Overview of your reconciliation and exceptions'
-    },
-    upload: {
-      title: 'Upload Data',
-      subtitle: 'Upload payments, settlements, and fees'
-    },
-    reconciliation: {
-      title: 'Reconciliation',
-      subtitle: ''
-    },
-    exceptions: {
-      title: 'Exceptions',
-      subtitle: ''
-    },
-    review: {
-      title: 'Review Queue',
-      subtitle: ''
-    },
-    audit: {
-      title: 'Audit Logs',
-      subtitle: 'Immutable record of reconciliation and review actions'
-    }
+  const titles: Record<NavTab, string> = {
+    dashboard: 'Dashboard',
+    upload: 'Upload Data',
+    reconciliation: 'Reconciliation',
+    exceptions: 'Exceptions',
+    review: 'Review Queue',
+    audit: 'Audit Logs'
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#e8edf5] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
       {/* Persistent Navigation Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -90,13 +72,12 @@ const AppContent: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8fafc] dark:bg-slate-950">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#e8edf5] dark:bg-slate-950">
         <Header
-          title={titles[activeTab]?.title || 'Dashboard'}
-          subtitle={titles[activeTab]?.subtitle}
+          title={titles[activeTab] || 'Dashboard'}
         />
 
-        <main className="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-slate-950">
+        <main className="flex-1 overflow-y-auto px-6 sm:px-8 pb-3 sm:pb-4 pt-2 bg-[#e8edf5] dark:bg-slate-950">
           <div className="max-w-7xl mx-auto">
 
             {activeTab === 'dashboard' && (

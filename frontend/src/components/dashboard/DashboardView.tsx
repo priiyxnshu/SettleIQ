@@ -4,14 +4,11 @@ import {
   AlertOctagon,
   Clock,
   Layers,
-  ArrowRight,
   UploadCloud,
   CheckCircle2,
   RotateCw,
-  History,
-  FileText,
-  FileSpreadsheet,
-  Sparkles
+  Copy,
+  Check
 } from 'lucide-react';
 import type { DashboardStats, UploadHistoryItem } from '../../types';
 import { useUser } from '../../context/UserContext';
@@ -42,6 +39,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const { currentUser } = useUser();
   const [recentUploads, setRecentUploads] = useState<FlattenedFileEntry[]>([]);
   const [loadingUploads, setLoadingUploads] = useState(false);
+  const [copiedBatchId, setCopiedBatchId] = useState(false);
+
+  const handleCopyBatchId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedBatchId(true);
+    setTimeout(() => setCopiedBatchId(false), 2000);
+  };
 
   const fetchRecentUploads = async () => {
     setLoadingUploads(true);
@@ -121,7 +125,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const underReview = stats.human_review_count;
   const autoResolved = stats.auto_resolved_count;
   const exceptionsTotal = stats.exceptions_count;
-  const openExceptions = Math.max(0, exceptionsTotal - (underReview + autoResolved));
 
   // Top KPI Card Percentages
   const underReviewKpiPct = exceptionsTotal > 0
@@ -132,19 +135,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     ? Math.round((exceptionsTotal / total) * 100)
     : 0;
 
-  // Donut Chart SVG Calculation (Enlarged & Prominent)
-  const r = 62;
-  const C = 2 * Math.PI * r; // ~389.557
-  const sliceSum = matched + underReview + autoResolved + openExceptions;
-
-  const donutSlices = [
-    { name: 'Matched', count: matched, color: '#10B981' }, // Emerald-500
-    { name: 'Exceptions', count: openExceptions, color: '#F59E0B' }, // Amber-500
-    { name: 'Sent for Review', count: underReview, color: '#8B5CF6' }, // Purple-500
-    { name: 'Auto-resolved', count: autoResolved, color: '#64748B' } // Slate-500
-  ].filter((s) => s.count > 0);
-
-  let cumulativeOffset = 0;
+  // Multi-Ring Reconciliation Status Rings (Semantic Colors)
+  const statusRings = [
+    { name: METRIC_LABELS.MATCHED, count: matched, color: '#10B981', r: 58, strokeWidth: 5 },
+    { name: METRIC_LABELS.EXCEPTIONS, count: exceptionsTotal, color: '#F59E0B', r: 50, strokeWidth: 5 },
+    { name: METRIC_LABELS.SENT_FOR_REVIEW, count: underReview, color: '#8B5CF6', r: 42, strokeWidth: 5 },
+    { name: METRIC_LABELS.AUTO_RESOLVED, count: autoResolved, color: '#64748B', r: 34, strokeWidth: 5 }
+  ];
 
   const formatTimestamp = (dateStr?: string) => {
     if (!dateStr) return 'Just now';
@@ -165,20 +162,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-200">
-      {/* 4 KPI Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="space-y-3 sm:space-y-3.5 animate-in fade-in duration-200">
+      {/* 4 KPI Cards Grid (Compact Single Viewport Top Row) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
         <StatCard
           label={METRIC_LABELS.TOTAL_RECORDS}
           value={stats.total_processed}
-          subtext="Payments processed"
           icon={Layers}
           colorTheme="blue"
         />
         <StatCard
           label={METRIC_LABELS.MATCHED}
           value={stats.matched_count}
-          subtext="Successfully reconciled"
           icon={FileCheck2}
           badge={{ text: `${stats.match_rate}%`, variant: 'success' }}
           colorTheme="green"
@@ -186,7 +181,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <StatCard
           label={METRIC_LABELS.EXCEPTIONS}
           value={stats.exceptions_count}
-          subtext="Requires attention"
           icon={AlertOctagon}
           badge={{ text: `${exceptionsKpiPct}%`, variant: 'warning' }}
           colorTheme="amber"
@@ -194,144 +188,148 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <StatCard
           label={METRIC_LABELS.UNDER_REVIEW}
           value={stats.human_review_count}
-          subtext="In review queue"
           icon={Clock}
           badge={{ text: `${underReviewKpiPct}%`, variant: 'purple' }}
           colorTheme="purple"
         />
       </div>
 
-      {/* Financial KPI Cards */}
-      <FinancialKpiCards
-        expectedAmount={stats.expected_amount ?? 0}
-        settledAmount={stats.settled_amount ?? 0}
-        differenceAmount={stats.difference_amount ?? 0}
-      />
-
-      {/* Middle Section: 2 Side-by-Side Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      {/* Middle Section: 2 Side-by-Side Cards (~60% of Viewport) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-3.5 items-stretch">
         {/* Left Card: Latest Reconciliation Run + Embedded Recent Uploads */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
+        <article className="neu-extruded rounded-xl p-3.5 sm:p-4 flex flex-col justify-between h-full">
           <div>
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center space-x-2.5">
-                <RotateCw className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Latest Reconciliation Run</h3>
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-300/60 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg neu-extruded-sm flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                  <RotateCw className="w-3.5 h-3.5" />
+                </div>
+                <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
+                  Latest Reconciliation Run
+                </h3>
               </div>
               {isAnalyst && (
                 <button
                   onClick={() => onNavigate('upload')}
-                  className="inline-flex items-center space-x-1.5 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition shadow-sm cursor-pointer"
                 >
-                  <UploadCloud className="h-3.5 w-3.5" />
+                  <UploadCloud className="w-3.5 h-3.5" />
                   <span>Upload Next Batch</span>
                 </button>
               )}
               {isManager && (
                 <button
                   onClick={() => onNavigate('reconciliation')}
-                  className="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 dark:text-blue-300 dark:border-blue-800/60 transition cursor-pointer"
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 flex items-center gap-1 group cursor-pointer"
                 >
                   <span>View Results</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                 </button>
               )}
             </div>
 
-            {/* 2-Column Content: Run Info on Left, Recent Uploads on Right */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5">
-              {/* Left Column: Essential Run Details */}
-              <div className="space-y-4">
+            {/* 2-Column Content: Run Details on Left, Recent Uploads on Right */}
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Left Column: Metadata */}
+              <div className="space-y-2.5">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Batch ID
                   </span>
-                  {/* Interactive Truncated Batch ID with Hover Popover */}
-                  <div className="relative group inline-block max-w-[170px] mt-1">
-                    <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 truncate cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition">
+                  <div className="neu-inset-subtle p-2 rounded-lg mt-1 flex items-center justify-between border border-white/40 dark:border-white/10">
+                    <span
+                      className="text-xs font-mono font-semibold text-blue-600 dark:text-blue-400 truncate max-w-[140px]"
+                      title={stats.latest_run_id}
+                    >
                       {stats.latest_run_id}
-                    </p>
-                    {/* Hover Tooltip revealing complete ID */}
-                    <div className="absolute left-0 top-full mt-1.5 hidden group-hover:flex items-center z-30 bg-slate-900 text-slate-100 px-3 py-1.5 rounded-lg shadow-xl border border-slate-700 text-[11px] font-mono whitespace-nowrap animate-in fade-in duration-150 pointer-events-none select-all">
-                      <span>{stats.latest_run_id}</span>
-                    </div>
+                    </span>
+                    <button
+                      onClick={() => handleCopyBatchId(stats.latest_run_id || '')}
+                      aria-label="Copy Batch ID"
+                      title="Copy Batch ID"
+                      className="neu-extruded-btn p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
+                    >
+                      {copiedBatchId ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Status
                   </span>
-                  <div className="mt-1">
-                    <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span>{stats.run_status || 'Completed'}</span>
+                  <div className="mt-1 flex items-center">
+                    <span className="neu-extruded-sm px-2.5 py-0.5 rounded-full text-xs font-extrabold text-emerald-700 dark:text-emerald-300 inline-flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-800/60">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>{stats.run_status || 'COMPLETED'}</span>
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Completed On
                   </span>
-                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-1">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
                     {formatTimestamp(stats.completed_at || stats.started_at)}
                   </p>
                 </div>
               </div>
 
-              {/* Right Column: Embedded Recent Uploads (3 Files) */}
-              <div className="bg-slate-50/60 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-100 dark:border-slate-700/60">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-700/60 mb-1">
-                  <div className="flex items-center space-x-1.5">
-                    <History className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Recent Uploads</span>
-                  </div>
+              {/* Right Column: Recent Uploads Box */}
+              <div className="neu-inset-subtle p-2.5 rounded-xl border border-white/50 dark:border-white/10 space-y-1.5">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-300/50 dark:border-slate-800">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Recent Uploads
+                  </span>
                   <button
                     onClick={fetchRecentUploads}
                     disabled={loadingUploads}
                     title="Refresh uploads"
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/60 transition cursor-pointer"
+                    className="neu-extruded-btn p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
                   >
-                    <RotateCw className={`h-3 w-3 ${loadingUploads ? 'animate-spin text-blue-600' : ''}`} />
+                    <RotateCw className={`w-3.5 h-3.5 ${loadingUploads ? 'animate-spin text-blue-600' : ''}`} />
                   </button>
                 </div>
 
                 {recentUploads.length === 0 ? (
-                  <div className="py-4 text-center text-[11px] text-slate-400 dark:text-slate-500">
+                  <div className="py-3 text-center text-[11px] text-slate-400 dark:text-slate-500">
                     No uploads available.
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                  <div className="space-y-1">
                     {recentUploads.map((file) => (
-                      <div key={file.id} className="py-2 flex items-center justify-between">
-                        <div className="flex items-center space-x-2.5 min-w-0">
-                          <div
-                            className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      <div
+                        key={file.id}
+                        className="flex items-center justify-between bg-white/40 dark:bg-slate-900/40 p-1.5 rounded-lg text-xs"
+                      >
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          <span
+                            className={`w-5 h-5 rounded neu-extruded-sm flex items-center justify-center shrink-0 text-[9px] font-extrabold ${
                               file.fileType === 'payments'
-                                ? 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60'
+                                ? 'text-blue-600 dark:text-blue-400'
                                 : file.fileType === 'settlements'
-                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60'
-                                : 'bg-purple-50 text-purple-600 border border-purple-100 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-800/60'
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : 'text-purple-600 dark:text-purple-400'
                             }`}
                           >
-                            {file.fileType === 'settlements' ? (
-                              <FileSpreadsheet className="h-3.5 w-3.5" />
-                            ) : (
-                              <FileText className="h-3.5 w-3.5" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate max-w-[90px]">
+                            CSV
+                          </span>
+                          <div className="truncate">
+                            <p className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[95px] text-[11px]">
                               {file.filename}
                             </p>
-                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate">
                               {formatTimestamp(file.uploadedAt)}
                             </p>
                           </div>
                         </div>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 shrink-0">
+                        <span className="neu-inset-pill px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-700 dark:text-emerald-300 rounded shrink-0">
                           {file.status}
                         </span>
                       </div>
@@ -341,122 +339,178 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
-
-        {/* Right Card: Dynamic Donut Chart & Reconciliation Breakdown */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-full">
+        {/* Right Card: Multi-Ring Reconciliation Overview & Breakdown */}
+        <article className="neu-extruded rounded-xl p-3.5 sm:p-4 flex flex-col justify-between h-full">
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-              {/* Left Side: Prominent SVG Donut Chart */}
-              <div className="sm:col-span-7 flex justify-center items-center relative py-1">
-                <svg width="170" height="170" viewBox="0 0 160 160" className="transform -rotate-90">
-                  {/* Background Track Circle */}
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r={r}
-                    fill="transparent"
-                    strokeWidth="16"
-                    className="stroke-[#F1F5F9] dark:stroke-[#1e293b]"
-                  />
+            {/* Header */}
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-300/60 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg neu-extruded-sm flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                  <AlertOctagon className="w-3.5 h-3.5" />
+                </div>
+                <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
+                  Exception Overview
+                </h3>
+              </div>
+              <button
+                onClick={() => onNavigate('exceptions')}
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 flex items-center gap-1 group cursor-pointer"
+              >
+                <span>View All Exceptions</span>
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </button>
+            </div>
 
-                  {/* Mutually Exclusive Colored Slices */}
-                  {sliceSum > 0 &&
-                    donutSlices.map((slice, idx) => {
-                      const strokeLength = (slice.count / sliceSum) * C;
-                      const dashArray = `${strokeLength} ${C - strokeLength}`;
-                      const dashOffset = -cumulativeOffset;
-                      cumulativeOffset += strokeLength;
+            {/* Chart and Legend Body */}
+            <div className="py-2.5 flex flex-col sm:flex-row items-center justify-around gap-4 sm:gap-5">
+              {/* Neumorphic Multi-Ring Visualization */}
+              <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center shrink-0">
+                <svg
+                  aria-label="Reconciliation status rings chart"
+                  className="w-full h-full transform -rotate-90"
+                  viewBox="0 0 140 140"
+                >
+                  {statusRings.map((ring, idx) => {
+                    const C = 2 * Math.PI * ring.r;
+                    const progress = total > 0 ? Math.min(1, Math.max(0, ring.count / total)) : 0;
+                    const strokeLength = progress * C;
 
-                      return (
+                    return (
+                      <g key={idx}>
+                        {/* Subtle Debossed Background Track */}
                         <circle
-                          key={idx}
-                          cx="80"
-                          cy="80"
-                          r={r}
+                          cx="70"
+                          cy="70"
+                          r={ring.r}
                           fill="transparent"
-                          stroke={slice.color}
-                          strokeWidth="16"
-                          strokeDasharray={dashArray}
-                          strokeDashoffset={dashOffset}
-                          className="transition-all duration-700 ease-out"
+                          stroke="#dde5f0"
+                          strokeWidth={ring.strokeWidth}
+                          className="dark:stroke-slate-800/80"
                         />
-                      );
-                    })}
+
+                        {/* Semantic Status Colored Arc */}
+                        {strokeLength > 0 && (
+                          <circle
+                            cx="70"
+                            cy="70"
+                            r={ring.r}
+                            fill="transparent"
+                            stroke={ring.color}
+                            strokeWidth={ring.strokeWidth}
+                            strokeDasharray={`${strokeLength} ${C - strokeLength}`}
+                            strokeDashoffset={0}
+                            strokeLinecap="round"
+                            className="transition-all duration-700 ease-out"
+                          />
+                        )}
+                      </g>
+                    );
+                  })}
                 </svg>
 
-                {/* Center Content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
+                {/* Raised Center Dial */}
+                <div className="absolute w-12 h-12 neu-extruded rounded-full flex flex-col items-center justify-center text-center shadow-inner">
+                  <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 leading-tight font-mono tabular-nums">
                     {stats.match_rate}%
                   </span>
-                  <span className="text-xs font-bold text-slate-400 dark:text-slate-500 -mt-0.5">Matched</span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                    Matched
+                  </span>
                 </div>
               </div>
 
-              {/* Right Side: Compact Legend */}
-              <div className="sm:col-span-5 space-y-2.5 text-xs pl-0.5">
-                {/* 1. Matched */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.MATCHED}</span>
+              {/* Legend Items List with Semantic Matching Colors */}
+              <div className="w-full sm:w-auto space-y-1.5 text-xs font-semibold">
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-sm shrink-0" />
+                    <span className="text-slate-700 dark:text-slate-300">{METRIC_LABELS.MATCHED}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
-                    {matched} ({formatPct(matched, total)})
-                  </span>
+                  <div className="text-right font-mono tabular-nums">
+                    <span className="font-extrabold text-slate-800 dark:text-slate-100">{matched}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px] ml-1">
+                      ({formatPct(matched, total)})
+                    </span>
+                  </div>
                 </div>
 
-                {/* 2. Exceptions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.EXCEPTIONS}</span>
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shadow-sm shrink-0" />
+                    <span className="text-slate-700 dark:text-slate-300">{METRIC_LABELS.EXCEPTIONS}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
-                    {exceptionsTotal} ({formatPct(exceptionsTotal, total)})
-                  </span>
+                  <div className="text-right font-mono tabular-nums">
+                    <span className="font-extrabold text-slate-800 dark:text-slate-100">{exceptionsTotal}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px] ml-1">
+                      ({formatPct(exceptionsTotal, total)})
+                    </span>
+                  </div>
                 </div>
 
-                {/* 3. Sent for Review */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-purple-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.SENT_FOR_REVIEW}</span>
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6] shadow-sm shrink-0" />
+                    <span className="text-slate-700 dark:text-slate-300">{METRIC_LABELS.SENT_FOR_REVIEW}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
-                    {underReview} ({formatPct(underReview, total)})
-                  </span>
+                  <div className="text-right font-mono tabular-nums">
+                    <span className="font-extrabold text-slate-800 dark:text-slate-100">{underReview}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px] ml-1">
+                      ({formatPct(underReview, total)})
+                    </span>
+                  </div>
                 </div>
 
-                {/* 4. Auto-resolved */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-slate-500 shrink-0" />
-                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">{METRIC_LABELS.AUTO_RESOLVED}</span>
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#64748B] shadow-sm shrink-0" />
+                    <span className="text-slate-700 dark:text-slate-300">{METRIC_LABELS.AUTO_RESOLVED}</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 ml-2 shrink-0">
-                    {autoResolved} ({formatPct(autoResolved, total)})
-                  </span>
+                  <div className="text-right font-mono tabular-nums">
+                    <span className="font-extrabold text-slate-800 dark:text-slate-100">{autoResolved}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px] ml-1">
+                      ({formatPct(autoResolved, total)})
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Callout Banner (Subtle & Compact) */}
-            <div className="mt-3.5 px-3 py-2 rounded-lg bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100/70 dark:border-blue-900/50 flex items-center space-x-2 text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-              <Sparkles className="h-3.5 w-3.5 text-blue-500 shrink-0" />
-              <span>
-                {autoResolved > 0
-                  ? `${autoResolved} exceptions were auto-resolved by AI with high confidence.`
-                  : stats.matched_count > 0
-                  ? `Reconciliation completed with ${stats.matched_count} successfully matched records.`
-                  : 'Reconciliation overview and exceptions summary.'}
+            {/* Bottom AI Confidence Banner (Debossed Well) */}
+            <div className="neu-inset p-2 sm:p-2.5 rounded-xl flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 mt-2">
+              <span className="text-blue-600 dark:text-blue-400 font-extrabold text-sm shrink-0">✦</span>
+              <span className="truncate">
+                {autoResolved > 0 ? (
+                  <>
+                    <strong className="text-slate-800 dark:text-slate-100 font-bold">
+                      {autoResolved} exceptions
+                    </strong>{' '}
+                    were auto-resolved by AI with high confidence.
+                  </>
+                ) : stats.matched_count > 0 ? (
+                  <>
+                    Reconciliation completed with{' '}
+                    <strong className="text-slate-800 dark:text-slate-100 font-bold">
+                      {stats.matched_count} successfully matched
+                    </strong>{' '}
+                    records.
+                  </>
+                ) : (
+                  'Reconciliation overview and exceptions summary.'
+                )}
               </span>
             </div>
           </div>
-        </div>
+        </article>
       </div>
+
+      {/* Financial KPI Cards (~20% Bottom Row) */}
+      <FinancialKpiCards
+        expectedAmount={stats.expected_amount ?? 0}
+        settledAmount={stats.settled_amount ?? 0}
+        differenceAmount={stats.difference_amount ?? 0}
+      />
     </div>
   );
 };

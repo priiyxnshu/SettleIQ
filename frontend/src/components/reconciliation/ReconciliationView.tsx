@@ -231,13 +231,6 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
       </div>
 
 
-      {/* Financial KPI Cards */}
-      <FinancialKpiCards
-        expectedAmount={stats.expected_amount ?? 0}
-        settledAmount={stats.settled_amount ?? 0}
-        differenceAmount={stats.difference_amount ?? 0}
-      />
-
       {/* 2. Primary Focus: Exception Distribution Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -298,6 +291,13 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
           <span className="w-32 shrink-0" />
         </div>
       </div>
+
+      {/* 3. Financial KPI Cards */}
+      <FinancialKpiCards
+        expectedAmount={stats.expected_amount ?? 0}
+        settledAmount={stats.settled_amount ?? 0}
+        differenceAmount={stats.difference_amount ?? 0}
+      />
 
       {/* Error Banner */}
       {error && (

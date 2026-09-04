@@ -42,19 +42,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = allNavItems.filter((item) => currentUser.allowedTabs.includes(item.id));
 
   return (
-    <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col justify-between shrink-0 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)] dark:shadow-none">
+    <aside className="w-64 bg-[#e8edf5] dark:bg-slate-900 border-r border-slate-300/60 dark:border-slate-800 flex flex-col justify-between shrink-0 select-none">
       <div>
         {/* Brand Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center space-x-3">
-          <img src={logoImg} alt="SettleIQ Logo" className="h-8 w-auto object-contain" />
-          <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-            SettleIQ
+        <div className="p-6 border-b border-slate-300/40 dark:border-slate-800 flex items-center space-x-3">
+          <img src={logoImg} alt="SettleIQ Logo" className="h-8 w-auto object-contain shrink-0" />
+          <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-[#E6E6E6] leading-tight">
+            Settle<span className="bg-gradient-to-r from-[#007ADE] to-[#01A8D9] bg-clip-text text-transparent font-black">IQ</span>
           </span>
         </div>
 
         {/* Navigation Menu */}
-        <nav className="p-4 space-y-1">
-          <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <nav className="p-4 space-y-2">
+          <div className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Navigation
           </div>
 
@@ -65,25 +65,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600 font-bold shadow-sm dark:bg-blue-950/60 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60'
+                    ? 'neu-nav-active text-blue-700 dark:text-blue-400 font-bold'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:neu-extruded-sm'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                  <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`} />
                   <span>{item.label}</span>
                 </div>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                    isActive 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 dark:border dark:border-blue-800/50'
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
+                <div className="flex items-center space-x-2">
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className={`neu-inset-pill px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
+                      item.id === 'exceptions'
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : item.id === 'review'
+                        ? 'text-purple-600 dark:text-purple-400'
+                        : 'text-blue-600 dark:text-blue-400'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />}
+                </div>
               </button>
             );
           })}
@@ -91,26 +96,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Active User Card & Logout Button */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="p-4 border-t border-slate-300/40 dark:border-slate-800">
+        <div className="neu-extruded-sm p-3 rounded-2xl flex items-center justify-between">
           <div className="flex items-center space-x-2.5 overflow-hidden">
-            <div className={`h-9 w-9 rounded-xl border shrink-0 flex items-center justify-center text-xs font-extrabold ${
+            <div className={`w-10 h-10 rounded-full neu-inset-subtle border border-white/60 dark:border-white/10 shrink-0 flex items-center justify-center text-xs font-extrabold ${
               currentUser.roleCategory === 'Maker'
-                ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60'
-                : 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60'
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-blue-600 dark:text-blue-400'
             }`}>
               {currentUser.initials}
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">{currentUser.roleTitle}</p>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate leading-tight">{currentUser.name}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{currentUser.roleTitle}</p>
             </div>
           </div>
 
           <button
             onClick={logout}
             title="Log out and switch profile"
-            className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 transition shrink-0 cursor-pointer"
+            className="neu-extruded-btn p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition shrink-0 cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
           </button>

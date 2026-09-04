@@ -326,7 +326,7 @@ export const AuditLogsView: React.FC = () => {
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
       {/* Filters Bar - Compact */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-2xs">
+      <div className="neu-extruded rounded-2xl p-4">
         <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-2.5">
           <div className="relative w-full xl:w-72 shrink-0">
             <Search className="h-3.5 w-3.5 absolute left-3 top-2.5 text-slate-400" />
@@ -335,7 +335,7 @@ export const AuditLogsView: React.FC = () => {
               placeholder="Search by Entity, Action, or Performed By..."
               value={searchEntity}
               onChange={(e) => setSearchEntity(e.target.value)}
-              className="w-full bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-1 focus:ring-blue-500 transition"
+              className="w-full neu-inset-subtle border border-white/60 dark:border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none transition"
             />
           </div>
 
@@ -345,10 +345,10 @@ export const AuditLogsView: React.FC = () => {
               <button
                 key={a.id}
                 onClick={() => setSelectedAction(a.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                   selectedAction === a.id
-                    ? 'bg-blue-600 text-white shadow-2xs border border-blue-600'
-                    : 'bg-slate-50 hover:bg-slate-100/80 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700'
+                    ? 'neu-inset-pill text-blue-700 dark:text-blue-300 font-bold'
+                    : 'neu-extruded-btn text-slate-600 dark:text-slate-300'
                 }`}
               >
                 {a.label}
@@ -359,7 +359,7 @@ export const AuditLogsView: React.FC = () => {
       </div>
 
       {/* Audit Logs Table Card - Contained Vertical Scroll */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xs flex flex-col">
+      <div className="neu-extruded rounded-2xl overflow-hidden flex flex-col">
         {loading ? (
           <LoadingSpinner message="Loading audit trail..." />
         ) : error ? (

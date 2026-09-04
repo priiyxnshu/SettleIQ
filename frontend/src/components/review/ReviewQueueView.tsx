@@ -227,7 +227,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   return (
     <div className="space-y-3.5 animate-in fade-in duration-200">
       {/* Top Status & Reviewer Bar - Aligned to the Right */}
-      <div className="flex items-center justify-end gap-2.5 -mt-2">
+      <div className="flex items-center justify-end gap-2.5">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100/90 text-amber-950 border border-amber-300 shadow-2xs">
           {queueItems.length} Reviews Pending
         </span>
@@ -264,7 +264,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left: Queue List */}
-          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800 max-h-[640px] overflow-y-auto">
+          <div className="lg:col-span-4 neu-extruded rounded-2xl overflow-hidden divide-y divide-slate-300/40 dark:divide-slate-800 max-h-[640px] overflow-y-auto">
             {queueItems.map((item) => {
               const isSelected = selectedExcId === item.id;
               return (
@@ -293,13 +293,13 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
           </div>
 
           {/* Right: Inspection & Decision Workspace */}
-          <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="lg:col-span-8 neu-extruded rounded-2xl p-6 space-y-4">
             {detailLoading || !selectedDetail ? (
               <LoadingSpinner message="Loading exception review workspace..." />
             ) : (
               <>
                 {/* Workspace Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-300/60 dark:border-slate-800 pb-3">
                   <div>
                     <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Exception Review</span>
                     <h3 className="text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">{selectedDetail.id}</h3>
@@ -316,7 +316,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                 </div>
 
                 {/* Financial Summary Box */}
-                <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 font-mono text-xs">
+                <div className="grid grid-cols-3 gap-3 p-3.5 rounded-xl neu-inset-subtle border border-white/60 dark:border-white/10 font-mono text-xs">
                   <div>
                     <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Payment</span>
                     <span className="text-slate-900 dark:text-slate-100 font-bold text-sm">
@@ -354,7 +354,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                 </div>
 
                 {/* Operator Actions Form */}
-                <div className="space-y-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+                <div className="space-y-3 pt-1 border-t border-slate-300/40 dark:border-slate-800">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
                       <MessageSquare className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
@@ -366,7 +366,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                         type="text"
                         value={operatorName}
                         onChange={(e) => setOperatorName(e.target.value)}
-                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-0.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                        className="neu-inset-subtle border border-white/60 dark:border-white/10 rounded-lg px-2 py-0.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none font-semibold"
                       />
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
                     placeholder="Add notes about your review decision..."
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full neu-inset-subtle border border-white/60 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                   />
 
                   {/* 3 Explicit Action Buttons */}

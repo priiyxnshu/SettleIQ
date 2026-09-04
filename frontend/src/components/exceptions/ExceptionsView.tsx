@@ -165,7 +165,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* Compact Horizontal Filters Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+      <div className="neu-extruded rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -175,7 +175,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
               placeholder="Search by Exception ID or Payment Reference..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 transition"
+              className="w-full neu-inset-subtle border border-white/60 dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition"
             />
           </div>
 
@@ -189,10 +189,10 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                   setTypeOpen((prev) => !prev);
                   setStatusOpen(false);
                 }}
-                className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition cursor-pointer select-none ${
+                className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer select-none ${
                   selectedType !== 'ALL'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 shadow-2xs'
-                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/60 shadow-2xs'
+                    ? 'neu-inset-pill text-blue-700 dark:text-blue-300 font-bold'
+                    : 'neu-extruded-btn text-slate-700 dark:text-slate-200'
                 }`}
               >
                 <span className="text-slate-500 dark:text-slate-400 font-normal">Type:</span>
@@ -232,10 +232,10 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
                   setStatusOpen((prev) => !prev);
                   setTypeOpen(false);
                 }}
-                className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition cursor-pointer select-none ${
+                className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer select-none ${
                   selectedStatus !== 'ALL'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 shadow-2xs'
-                    : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/60 shadow-2xs'
+                    ? 'neu-inset-pill text-blue-700 dark:text-blue-300 font-bold'
+                    : 'neu-extruded-btn text-slate-700 dark:text-slate-200'
                 }`}
               >
                 <span className="text-slate-500 dark:text-slate-400 font-normal">Status:</span>
@@ -288,7 +288,7 @@ export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
       </div>
 
       {/* Exception Table Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <div className="neu-extruded rounded-2xl overflow-hidden">
         {loading ? (
           <div className="py-16">
             <LoadingSpinner message="Fetching exceptions..." />
