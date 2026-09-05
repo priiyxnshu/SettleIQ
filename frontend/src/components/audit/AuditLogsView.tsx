@@ -1,3 +1,11 @@
+/**
+ * SettleIQ Immutable Audit Trail View
+ *
+ * Institutional compliance log viewer tracking all reconciliation events, automated rule triggers,
+ * and human reviewer decisions. Provides chronological event inspection, entity search,
+ * action categorization, and formatted/raw JSON payload examination.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   FileText,
@@ -18,6 +26,9 @@ import { ActionBadge } from '../common/Badge';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { EmptyState } from '../common/EmptyState';
 
+/**
+ * Audit log management view presenting the complete immutable history of operational events.
+ */
 export const AuditLogsView: React.FC = () => {
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,3 +1,11 @@
+"""
+SettleIQ Review Service Module.
+
+Implements the Maker-Checker human-in-the-loop workflow for reviewing settlement exceptions.
+Validates operator action preconditions, manages canonical state transitions (APPROVE, REJECT,
+KEEP_UNRESOLVED), persists audit-trailed review decisions, and logs immutable audit records.
+"""
+
 import json
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
@@ -13,13 +21,34 @@ from app.models import (
 )
 from app.schemas.review import HumanReviewRequest, HumanReviewResponse, HumanReviewAction
 
+
 class ReviewService:
+    """
+    Service managing human review operations and Maker-Checker decision transitions.
+    """
+
     @staticmethod
     def apply_review(
         db: Session,
         exception_id: str,
         request: HumanReviewRequest
     ) -> HumanReviewResponse:
+        """
+        Apply a human operator's decision to a pending settlement exception.
+
+        State Transitions:
+            - APPROVE: ExceptionStatus.AUTO_RESOLVED, DecisionOutcome.APPROVED,
+              AuditAction.HUMAN_APPROVED
+            - REJECT: ExceptionStatus.REJECTED, DecisionOutcome.REJECTED,
+              AuditAction.HUMAN_REJECTED
+            - KEEP_UNRESOLVED: ExceptionStatus.HUMAN_REVIEW, DecisionOutcome.HUMAN_REVIEW,
+              AuditAction.SENT_TO_REVIEW
+
+        Preconditions:
+            The exception must exist and currently be in 'HUMAN_REVIEW' status.
+
+        Updates ExceptionRecord, upserts ReviewDecision, and writes an immutable AuditLog entry.
+        """
         exc = db.query(ExceptionRecord).filter_by(id=exception_id).first()
         if not exc:
             raise HTTPException(

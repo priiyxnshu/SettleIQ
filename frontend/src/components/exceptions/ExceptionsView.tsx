@@ -1,3 +1,12 @@
+/**
+ * SettleIQ Exceptions Directory View
+ *
+ * Paginated, searchable, and filterable table of all detected reconciliation exceptions.
+ * Allows filtering by anomaly type (Amount, Missing, Duplicate, Reference),
+ * resolution state (Auto-Resolved, Human Review, Approved), and initiates deep-dive
+ * root cause analysis via the ExceptionDetailModal.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
@@ -24,6 +33,9 @@ interface ExceptionsViewProps {
 
 const PAGE_SIZE = 10;
 
+/**
+ * Exceptions table view with multi-faceted filtering, searching, and row selection.
+ */
 export const ExceptionsView: React.FC<ExceptionsViewProps> = ({
   onSelectException,
   runId,

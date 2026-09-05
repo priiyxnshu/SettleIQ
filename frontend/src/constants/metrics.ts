@@ -15,6 +15,7 @@ export const NAV_LABELS = {
   RECONCILIATION: 'Reconciliation',
   EXCEPTIONS: 'Exceptions',
   REVIEW_QUEUE: 'Review Queue',
-  AUDIT_LOGS: 'Audit Logs'
+  AUDIT_LOGS: 'Audit Logs',
+  REPORTS: 'Reports'
 } as const;
 

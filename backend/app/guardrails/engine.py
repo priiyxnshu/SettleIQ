@@ -1,3 +1,11 @@
+"""
+SettleIQ Guardrail Engine Module.
+
+Provides deterministic validation gates that evaluate AI investigation recommendations
+before any settlement exception can be automatically resolved. Acts as an immutable safety
+layer preventing unauthorized financial adjustments, hallucinations, or unsafe resolutions.
+"""
+
 import json
 from typing import Optional, List
 from sqlalchemy.orm import Session
@@ -21,7 +29,15 @@ from app.schemas.guardrails import (
 from app.services.evidence_builder import EvidenceBuilder
 from app.services.ai_investigation_service import AIInvestigationService
 
+
 class GuardrailEngine:
+    """
+    Deterministic safety engine enforcing financial integrity policies.
+
+    Evaluates AI-generated investigation results against five mandatory safety gates
+    to decide whether an exception may transition to AUTO_RESOLVED or must be routed
+    to HUMAN_REVIEW.
+    """
     CONFIDENCE_THRESHOLD = 0.90
 
     @classmethod
@@ -32,6 +48,26 @@ class GuardrailEngine:
         ai_result: Optional[AIInvestigationResult] = None,
         user_id: Optional[str] = None
     ) -> DecisionResponse:
+        """
+        Evaluate a single exception against the five deterministic guardrail checks.
+
+        Safety Gates Evaluated:
+            1. Recommendation Validity: AI must explicitly recommend 'AUTO_RESOLVE'
+               without triggering fallback heuristics.
+            2. Confidence Threshold: AI confidence score must meet or exceed 0.90.
+            3. Evidence Grounding: All evidence IDs cited by the AI must exist within
+               the pre-calculated facts package (zero tolerance for hallucinated IDs).
+            4. Deterministic Policies:
+               - Policy A (AMOUNT_MISMATCH): Discrepancy (Payment - Settlement) must
+                 exactly equal the recorded processor fee (tolerance <= 0.01).
+               - Policy B (REFERENCE_MISMATCH): Alternate order reference correlation
+                 must be verified with zero net financial discrepancy (tolerance <= 0.01).
+            5. Sanity & Invariants: Fee must not be negative, and settlement status
+               must not be pending.
+
+        Updates the ExceptionRecord status, persists the ReviewDecision, writes an
+        immutable AuditLog entry, and returns the DecisionResponse.
+        """
         # 1. Fetch exception record
         exc = db.query(ExceptionRecord).filter_by(id=exception_id).first()
         if not exc:
@@ -191,6 +227,13 @@ class GuardrailEngine:
         reconciliation_run_id: str,
         user_id: Optional[str] = None
     ) -> BatchEvaluationSummary:
+        """
+        Evaluate all exception records associated with a specific reconciliation run.
+
+        Iterates through all exceptions in the run, executes evaluate_exception() on each,
+        tallies AUTO_RESOLVED vs HUMAN_REVIEW counts, and aggregates a comprehensive
+        BatchEvaluationSummary.
+        """
         exceptions = db.query(ExceptionRecord).filter_by(reconciliation_run_id=reconciliation_run_id).all()
         decisions: List[DecisionResponse] = []
         auto_count = 0

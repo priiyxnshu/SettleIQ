@@ -1,3 +1,12 @@
+/**
+ * SettleIQ Human Review Queue View
+ *
+ * Maker-Checker operational interface for resolving exceptions flagged by guardrails.
+ * Presents actionable transaction items awaiting human authorization, explains the specific
+ * policy reasons for manual review, and provides Approve & Resolve, Reject / Dispute,
+ * and Keep in Review action workflows with mandatory audit notes.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   CheckSquare,
@@ -27,6 +36,9 @@ const formatCurrency = (val?: number | null): string => {
   return `${isNegative ? '-' : ''}₹${absFormatted}`;
 };
 
+/**
+ * Generate human-readable narrative explaining why guardrails routed the exception to human review.
+ */
 const getWhyNeedsReviewExplanation = (detail: ExceptionDetailResponse): string => {
   if (detail.decision && detail.decision.decided_by !== 'SYSTEM' && detail.decision.reason) {
     return detail.decision.reason;
@@ -90,6 +102,9 @@ interface ReviewQueueViewProps {
   runId?: string;
 }
 
+/**
+ * Review queue view displaying pending human review items and Maker-Checker action controls.
+ */
 export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   onRefreshParent,
   onSelectException,

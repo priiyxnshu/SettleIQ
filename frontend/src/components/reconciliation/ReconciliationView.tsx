@@ -1,3 +1,11 @@
+/**
+ * SettleIQ Reconciliation Hub View
+ *
+ * Operational interface for executing and monitoring deterministic matching and
+ * batch AI guardrail evaluations. Explains the 5 core deterministic matching rules,
+ * triggers automated exception investigations, and visualizes batch disposition outcomes.
+ */
+
 import React, { useState } from 'react';
 import {
   Layers,
@@ -29,6 +37,9 @@ const AI_INVESTIGATION_STEPS = [
   'Checking guardrail rules'
 ];
 
+/**
+ * Reconciliation overview view providing matching rule references and batch AI execution.
+ */
 export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
   stats,
   onNavigate,
@@ -42,20 +53,12 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [progressPct, setProgressPct] = useState(15);
 
-  // --- [DEV ONLY: DEMO MODE STATE] ---
-  // When ON, temporarily bypasses the completed-state lock on the action button for repeated demo testing
-  const [demoMode, setDemoMode] = useState(false);
-  // --- [END DEV ONLY: DEMO MODE STATE] ---
-
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Determine if AI investigation has already been completed on the current batch (persisted in DB)
-  const isAICompleted = !demoMode && (
-    Boolean(evalResult) || Boolean(
-      stats && stats.exceptions_count > 0 && (stats.auto_resolved_count + stats.human_review_count + (stats.human_approved_count || 0)) > 0
-    )
-  );
-
+  /**
+   * Execute batch AI investigation across all exceptions in the latest reconciliation run.
+   * Advances through multi-step animated progress indicators and updates disposition counts.
+   */
   const handleRunBatchAI = async () => {
     if (!stats?.latest_run_id) return;
     setEvaluating(true);
@@ -308,52 +311,25 @@ export const ReconciliationView: React.FC<ReconciliationViewProps> = ({
         </div>
       )}
 
-      {/* 3. Centered Next Action: Run AI Investigation (or Completed State) */}
-      <div className="flex flex-col items-center justify-center pt-2 pb-6 space-y-3">
-        {isAICompleted ? (
-          <button
-            disabled
-            className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 shadow-xs cursor-default select-none transition"
-          >
-            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
-            <span>AI Investigation Completed</span>
-          </button>
-        ) : (
-          <button
-            onClick={handleRunBatchAI}
-            disabled={evaluating}
-            className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white transition shadow-sm shadow-blue-600/20 cursor-pointer"
-          >
-            {evaluating ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                <span>Investigating...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-3.5 w-3.5 text-blue-200" />
-                <span>Run AI Investigation</span>
-              </>
-            )}
-          </button>
-        )}
-
-        {/* --- [DEV ONLY: DEMO MODE TOGGLE] - Can be deleted when no longer needed --- */}
-        <div className="flex items-center space-x-2 pt-0.5">
-          <button
-            onClick={() => setDemoMode(!demoMode)}
-            className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border transition cursor-pointer select-none ${
-              demoMode
-                ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60 shadow-xs'
-                : 'bg-slate-50 text-slate-400 border-slate-200/80 hover:text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-500 dark:border-slate-800 dark:hover:text-slate-300 dark:hover:bg-slate-800'
-            }`}
-            title="Toggle Demo Mode to allow re-running AI Investigation on processed batches"
-          >
-            <span className={`h-1.5 w-1.5 rounded-full ${demoMode ? 'bg-amber-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'}`} />
-            <span>Demo Mode: <strong>{demoMode ? 'ON (Re-run Enabled)' : 'OFF'}</strong></span>
-          </button>
-        </div>
-        {/* --- [END DEV ONLY: DEMO MODE TOGGLE] --- */}
+      {/* 3. Centered Next Action: Run AI Investigation */}
+      <div className="flex flex-col items-center justify-center pt-2 pb-6">
+        <button
+          onClick={handleRunBatchAI}
+          disabled={evaluating}
+          className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white transition shadow-sm shadow-blue-600/20 cursor-pointer"
+        >
+          {evaluating ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span>Investigating...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-3.5 w-3.5 text-blue-200" />
+              <span>Run AI Investigation</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* AI Investigation Modal (In-Progress or Completed) */}

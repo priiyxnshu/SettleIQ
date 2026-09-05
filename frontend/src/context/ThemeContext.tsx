@@ -1,3 +1,10 @@
+/**
+ * Theme Context & Appearance Mode
+ *
+ * Manages light and dark appearance modes across SettleIQ.
+ * Persists theme preference to localStorage and updates document root class hierarchy.
+ */
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Theme = 'light' | 'dark';
@@ -12,6 +19,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'settleiq_theme';
 
+/**
+ * Provider wrapping the application to manage DOM dark mode class and theme toggling.
+ */
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {

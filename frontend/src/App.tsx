@@ -1,3 +1,11 @@
+/**
+ * SettleIQ Application Root Shell
+ *
+ * Root container managing authentication gate, navigation tab state, responsive layout
+ * (collapsible sidebar, header), role-based tab access restrictions, global modal state,
+ * and high-level dashboard metrics synchronization.
+ */
+
 import React, { useState, useEffect } from 'react';
 import type { NavTab, DashboardStats } from './types';
 import { getDashboardMetrics } from './services/api';
@@ -12,10 +20,15 @@ import { ReconciliationView } from './components/reconciliation/ReconciliationVi
 import { ExceptionsView } from './components/exceptions/ExceptionsView';
 import { ReviewQueueView } from './components/review/ReviewQueueView';
 import { AuditLogsView } from './components/audit/AuditLogsView';
+import { ReportsView } from './components/reports/ReportsView';
 import { ExceptionDetailModal } from './components/exceptions/ExceptionDetailModal';
 
 const SIDEBAR_STORAGE_KEY = 'settleiq_sidebar_collapsed';
 
+/**
+ * Main application content container rendered inside UserProvider.
+ * Handles profile gating, tab switching, and top-level data polling.
+ */
 const AppContent: React.FC = () => {
   const { currentUser, hasPermission } = useUser();
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
@@ -91,7 +104,8 @@ const AppContent: React.FC = () => {
     reconciliation: 'Reconciliation',
     exceptions: 'Exceptions',
     review: 'Review Queue',
-    audit: 'Audit Logs'
+    audit: 'Audit Logs',
+    reports: 'Reports'
   };
 
   return (
@@ -168,6 +182,14 @@ const AppContent: React.FC = () => {
 
             {activeTab === 'audit' && hasPermission('audit') && (
               <AuditLogsView />
+            )}
+
+            {activeTab === 'reports' && hasPermission('reports') && (
+              <ReportsView
+                runId={dashboardStats?.latest_run_id || undefined}
+                onNavigate={setActiveTab}
+                onRefresh={fetchStats}
+              />
             )}
           </div>
         </main>

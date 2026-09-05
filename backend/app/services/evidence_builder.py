@@ -1,4 +1,12 @@
-﻿from typing import List
+"""
+SettleIQ Evidence Builder Service Module.
+
+Constructs structured EvidencePackages for reconciliation exceptions by aggregating correlated
+financial records (payments, settlements, fees) and computing deterministic mathematical
+facts (net discrepancy, settlement counts, alternative reference links, safety flags).
+"""
+
+from typing import List
 from sqlalchemy.orm import Session
 from app.services.exception_service import ExceptionService
 from app.schemas.evidence import (
@@ -7,9 +15,31 @@ from app.schemas.evidence import (
     CalculatedFinancialFacts
 )
 
+
 class EvidenceBuilder:
+    """
+    Service for assembling grounded evidence packages from database records.
+    """
+
     @staticmethod
     def build_package(db: Session, exception_id: str) -> EvidencePackage:
+        """
+        Build an EvidencePackage containing source records and deterministic financial facts.
+
+        Computes:
+            - Net payment, settlement, and fee sums
+            - Exact discrepancy: round(payment - (settlement + fee), 2)
+            - Whitelisted evidence IDs (payment_id, settlement_ids, fee_ids)
+            - Safety invariants (negative fee detection, pending settlement flag)
+            - Reference correlation indicator (SR_<order_id> matching)
+
+        Args:
+            db: Active SQLAlchemy database session.
+            exception_id: Primary key of the ExceptionRecord.
+
+        Returns:
+            EvidencePackage populated with financial context and calculated facts.
+        """
         # Fetch the correlated exception context reusing the exact Phase 5 service
         detail = ExceptionService.get_exception_detail(db, exception_id)
 

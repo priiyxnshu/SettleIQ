@@ -1,6 +1,16 @@
+/**
+ * SettleIQ Status & Category Badges
+ *
+ * Provides standardized indicator pills for exception anomaly types, lifecycle statuses
+ * (distinguishing between AI Auto-Resolved and Human Approved), and audit log event codes.
+ */
+
 import React from 'react';
 import type { ExceptionType, ExceptionStatus, AuditAction, ReviewDecisionDetail } from '../../types';
 
+/**
+ * Visual badge for exception categories (Amount Mismatch, Missing Settlement, Duplicate, Ref Mismatch).
+ */
 export const ExceptionTypeBadge: React.FC<{ type: ExceptionType; className?: string }> = ({ type, className = '' }) => {
   const styles: Record<ExceptionType, string> = {
     AMOUNT_MISMATCH: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60',
@@ -25,6 +35,9 @@ export const ExceptionTypeBadge: React.FC<{ type: ExceptionType; className?: str
   );
 };
 
+/**
+ * Status indicator badge reflecting AI auto-resolution vs explicit human approval and rejection.
+ */
 export const StatusBadge: React.FC<{
   status: ExceptionStatus;
   decision?: ReviewDecisionDetail | null;
@@ -74,6 +87,9 @@ export const StatusBadge: React.FC<{
   );
 };
 
+/**
+ * Badge for audit actions with contextual colors based on outcome severity.
+ */
 export const ActionBadge: React.FC<{ action: AuditAction; className?: string }> = ({ action, className = '' }) => {
   const color = 
     action.includes('APPROVED') || action.includes('AUTO_RESOLVED') ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60' :

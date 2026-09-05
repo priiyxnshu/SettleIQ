@@ -1,3 +1,12 @@
+/**
+ * SettleIQ Main Dashboard View
+ *
+ * Operational executive dashboard summarizing reconciliation cycle health.
+ * Displays financial KPI aggregates (Gross Volume, Settled Funds, Discrepancy),
+ * transactional statistics (Match Rate, Automation Rate, Review Queue load),
+ * exception category breakdowns, recent ingestion batches, and role-tailored actions.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   FileCheck2,
@@ -6,7 +15,6 @@ import {
   Layers,
   UploadCloud,
   CheckCircle2,
-  RotateCw,
   Copy,
   Check
 } from 'lucide-react';
@@ -32,13 +40,15 @@ interface FlattenedFileEntry {
   status: string;
 }
 
+/**
+ * Primary dashboard view composing financial metrics, transactional KPIs, and recent uploads.
+ */
 export const DashboardView: React.FC<DashboardViewProps> = ({
   stats,
   onNavigate
 }) => {
   const { currentUser } = useUser();
   const [recentUploads, setRecentUploads] = useState<FlattenedFileEntry[]>([]);
-  const [loadingUploads, setLoadingUploads] = useState(false);
   const [copiedBatchId, setCopiedBatchId] = useState(false);
 
   const handleCopyBatchId = (id: string) => {
@@ -47,8 +57,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     setTimeout(() => setCopiedBatchId(false), 2000);
   };
 
+  /**
+   * Fetch the most recent ingestion batch and decompose it into individual file items for display.
+   */
   const fetchRecentUploads = async () => {
-    setLoadingUploads(true);
     try {
       const res = await getUploadHistory(1);
       if (res && res.items && res.items.length > 0) {
@@ -81,8 +93,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       }
     } catch (err) {
       console.error('Failed to fetch dashboard upload history:', err);
-    } finally {
-      setLoadingUploads(false);
     }
   };
 
@@ -203,7 +213,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="flex items-center justify-between pb-2.5 border-b border-slate-300/60 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg neu-extruded-sm flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-                  <RotateCw className="w-3.5 h-3.5" />
+                  <Layers className="w-3.5 h-3.5" />
                 </div>
                 <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
                   Latest Reconciliation Run
@@ -287,14 +297,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300">
                     Recent Uploads
                   </span>
-                  <button
-                    onClick={fetchRecentUploads}
-                    disabled={loadingUploads}
-                    title="Refresh uploads"
-                    className="neu-extruded-btn p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
-                  >
-                    <RotateCw className={`w-3.5 h-3.5 ${loadingUploads ? 'animate-spin text-blue-600' : ''}`} />
-                  </button>
                 </div>
 
                 {recentUploads.length === 0 ? (

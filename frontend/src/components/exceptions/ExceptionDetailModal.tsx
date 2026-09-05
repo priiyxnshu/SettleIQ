@@ -1,3 +1,14 @@
+/**
+ * SettleIQ Exception Investigation Modal
+ *
+ * Multi-tabbed modal inspecting a single reconciliation exception in depth:
+ * 1. Overview & Evidence: Payment details, correlated settlement batches, processor fees,
+ *    and deterministic financial calculations.
+ * 2. AI Root-Cause Investigation: Grounded Gemini analysis, confidence rating,
+ *    advisory recommendations, evidence ID citations, and guardrail validation checks.
+ * 3. Audit Trail: Chronological lifecycle history and Maker-Checker decision audit records.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
@@ -108,13 +119,15 @@ const formatAuditDate = (dateStr?: string | null): string => {
   }
 };
 
-
 interface ExceptionDetailModalProps {
   exceptionId: string | null;
   onClose: () => void;
   onRefreshParent?: () => void;
 }
 
+/**
+ * Deep-dive modal presenting correlated financial records, AI diagnosis, and audit trails.
+ */
 export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
   exceptionId,
   onClose,
@@ -139,16 +152,22 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
       setLoading(true);
       setError(null);
       try {
-        const [det, ev, logs, ai] = await Promise.all([
+        const [det, ev, logs] = await Promise.all([
           getExceptionDetail(exceptionId),
           getExceptionEvidence(exceptionId),
-          getExceptionAuditTrail(exceptionId),
-          investigateException(exceptionId).catch(() => null)
+          getExceptionAuditTrail(exceptionId)
         ]);
         setDetail(det);
         setEvidence(ev);
         setAuditLogs(logs);
-        if (ai) setAiResult(ai);
+
+        // Only request a live investigation if the exception is OPEN and has no persisted decision
+        if (!det.decision && det.status === 'OPEN') {
+          const ai = await investigateException(exceptionId).catch(() => null);
+          if (ai) setAiResult(ai);
+        } else {
+          setAiResult(null);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to load exception details');
       } finally {
@@ -185,7 +204,12 @@ export const ExceptionDetailModal: React.FC<ExceptionDetailModalProps> = ({
 
   // System Analysis Derivations (Decision Flow: Finding -> Guardrail Validation -> Final System Outcome)
   const isInvestigated = Boolean(aiResult || detail?.decision || (detail && detail.status !== 'OPEN'));
-  const confidenceVal = aiResult?.confidence ?? detail?.decision?.confidence ?? 0.96;
+  const hasPersistedConfidence = detail?.decision?.confidence !== undefined && detail?.decision?.confidence !== null;
+  const confidenceVal = hasPersistedConfidence
+    ? detail!.decision!.confidence!
+    : (!aiResult?.is_fallback && aiResult?.confidence !== undefined && aiResult?.confidence !== null)
+      ? aiResult.confidence
+      : 0;
   const confidenceScore = `${Math.round(confidenceVal * 100)}%`;
 
   // 1. What did the system find?

@@ -1,3 +1,11 @@
+"""
+SettleIQ AI Provider Module.
+
+Defines the pluggable LLM provider abstraction layer, allowing SettleIQ to seamlessly
+switch between the live Google Gemini API and a zero-latency DeterministicProvider
+for offline evaluation, local development, and automated regression testing.
+"""
+
 import json
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List
@@ -5,18 +13,40 @@ import httpx
 from app.schemas.evidence import EvidencePackage
 from app.models.enums import ExceptionType
 
+
 class BaseLLMProvider(ABC):
+    """
+    Abstract base interface for all SettleIQ AI investigation providers.
+    """
+
     @abstractmethod
     def generate_investigation(self, prompt: str, package: EvidencePackage) -> Dict[str, Any]:
+        """
+        Execute an AI investigation against the provided prompt and evidence package.
+
+        Args:
+            prompt: The formatted prompt string containing system instructions and evidence.
+            package: The structured EvidencePackage domain model.
+
+        Returns:
+            Dict containing parsed investigation fields matching AIInvestigationResult schema.
+        """
         pass
 
 
 class DeterministicProvider(BaseLLMProvider):
     """
     Deterministic AI provider grounded in the supplied EvidencePackage.
-    Enables reproducible evaluation, local offline testing, and instant development feedback.
+
+    Applies rule-based heuristic logic mirroring expected LLM outputs to enable
+    reproducible evaluation, local offline testing, and instant development feedback
+    without external network calls or API token consumption.
     """
+
     def generate_investigation(self, prompt: str, package: EvidencePackage) -> Dict[str, Any]:
+        """
+        Produce a deterministic investigation response strictly based on calculated facts.
+        """
         facts = package.calculated_facts
         exc_type = package.exception_type
         evidence_ids = facts.evidence_ids
@@ -120,14 +150,24 @@ class DeterministicProvider(BaseLLMProvider):
 
 class GeminiProvider(BaseLLMProvider):
     """
-    Google Gemini API provider calling Gemini 2.5/Flash endpoint with JSON mode.
+    Google Gemini API provider calling generative AI endpoints with structured JSON mode.
+
+    Communicates with the Google Generative Language REST API to obtain grounded
+    exception analyses. Automatically falls back to DeterministicProvider if no API key
+    is configured or if a placeholder key is detected.
     """
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
+
+    def __init__(self, api_key: str, model: str = "gemini-3.6-flash"):
         self.api_key = api_key
         self.model = model
         self.endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
 
     def generate_investigation(self, prompt: str, package: EvidencePackage) -> Dict[str, Any]:
+        """
+        Execute an investigation call to the Gemini API requesting JSON structured output.
+
+        Falls back to DeterministicProvider if the API key is absent or placeholder.
+        """
         if not self.api_key or self.api_key == "your_gemini_api_key_here":
             # Fall back to deterministic provider if no live API key is configured
             return DeterministicProvider().generate_investigation(prompt, package)

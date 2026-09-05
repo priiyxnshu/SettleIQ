@@ -1,4 +1,12 @@
-﻿from app.database.base import Base
+"""
+SettleIQ Models Package.
+
+Re-exports the declarative Base, domain enums, and all SQLAlchemy ORM models
+representing users, reconciliation runs, raw uploads, financial records, exception
+entities, review decisions, and immutable audit logs.
+"""
+
+from app.database.base import Base
 from app.models.enums import (
     UploadFileType,
     UploadStatus,

@@ -1,4 +1,12 @@
-﻿import json
+"""
+Deterministic Financial Reconciliation Engine
+Applies strict precedence matching rules to evaluate payment, processor settlement,
+and gateway fee records. Identifies discrepancies, categorizes canonical exceptions
+(DUPLICATE, REFERENCE_MISMATCH, AMOUNT_MISMATCH, MISSING_SETTLEMENT, UNKNOWN),
+computes overall match rates, and persists initial open exception records.
+"""
+
+import json
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -21,8 +29,21 @@ from app.models import (
 from app.schemas.reconciliation import ReconcileResponse, ExceptionBreakdown
 
 class ReconciliationEngine:
+    """
+    Core algorithmic engine executing multi-way financial parity reconciliation.
+    Guarantees deterministic, reproducible exception flagging without external dependencies.
+    """
+
     @staticmethod
     def run_reconciliation(db: Session, reconciliation_run_id: str, user_id: Optional[str] = None) -> ReconcileResponse:
+        """
+        Executes deterministic matching precedence across all payments in a run:
+        1. DUPLICATE: Multiple direct settlement records linked to a single payment_id.
+        2. REFERENCE_MISMATCH vs MISSING_SETTLEMENT: Zero direct settlement matches; checks
+           for correlated alternate reference (SR_<order_id>) with exact net amount.
+        3. Single settlement: Checks for UNKNOWN anomalies (negative fee, over-settlement,
+           pending status) vs AMOUNT_MISMATCH (> 0.01 discrepancy after fees).
+        """
         # 1. Fetch the reconciliation run
         run = db.query(ReconciliationRun).filter_by(id=reconciliation_run_id).first()
         if not run:

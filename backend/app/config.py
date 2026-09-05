@@ -1,3 +1,10 @@
+"""
+Application Configuration & Environment Settings
+Defines the Pydantic BaseSettings specification for SettleIQ.
+Loads local environment variables from backend/.env, managing database connection
+strings, CORS origins, server bindings, and LLM provider credentials.
+"""
+
 from pathlib import Path
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -6,7 +13,14 @@ _BACKEND_DIR = Path(__file__).resolve().parent.parent
 _DEFAULT_DB_PATH = (_BACKEND_DIR / "settleiq.db").as_posix()
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    """
+    Centralized runtime configuration for SettleIQ backend services.
+    Automatically binds environment variables with fallback defaults.
+    """
+    model_config = SettingsConfigDict(
+        env_file=(_BACKEND_DIR / ".env", ".env"),
+        extra="ignore"
+    )
     
     PROJECT_NAME: str = "SettleIQ"
     VERSION: str = "0.1.0"

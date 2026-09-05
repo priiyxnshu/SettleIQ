@@ -1,3 +1,10 @@
+/**
+ * Standard Operational Metric StatCard Component
+ *
+ * Renders an extruded metric card featuring an icon container, optional top-right pill badge,
+ * prominent tabular numeric value, and descriptive uppercase category label.
+ */
+
 import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -12,6 +19,9 @@ interface StatCardProps {
   colorTheme?: 'blue' | 'green' | 'amber' | 'purple' | 'neutral';
 }
 
+/**
+ * Reusable KPI card with thematic coloring, embossed container, and tabular digits.
+ */
 export const StatCard: React.FC<StatCardProps> = ({
   label,
   value,

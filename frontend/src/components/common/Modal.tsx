@@ -1,3 +1,10 @@
+/**
+ * Standard Dialog Modal Component
+ *
+ * Accessible modal overlay managing scroll lock, keyboard escape dismissing,
+ * backdrop blur, customizable max-width, and header title with close button.
+ */
+
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
@@ -10,6 +17,9 @@ interface ModalProps {
   bodyClassName?: string;
 }
 
+/**
+ * Generic modal container with backdrop dismissal and keyboard navigation support.
+ */
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,

@@ -1,3 +1,11 @@
+/**
+ * SettleIQ TypeScript Domain & API Type Definitions
+ *
+ * Core TypeScript interface and type declarations covering exception models,
+ * workflow statuses, audit actions, user profiles, dashboard metrics,
+ * reconciliation responses, and report payloads.
+ */
+
 export type ExceptionType = 
   | 'AMOUNT_MISMATCH'
   | 'MISSING_SETTLEMENT'
@@ -29,7 +37,7 @@ export type AuditAction =
   | 'HUMAN_APPROVED'
   | 'HUMAN_REJECTED';
 
-export type NavTab = 'dashboard' | 'upload' | 'reconciliation' | 'exceptions' | 'review' | 'audit';
+export type NavTab = 'dashboard' | 'upload' | 'reconciliation' | 'exceptions' | 'review' | 'audit' | 'reports';
 
 export type UserRole = 'OPERATIONS_ANALYST' | 'RECONCILIATION_MANAGER';
 
@@ -291,4 +299,40 @@ export interface ReconcileResponse {
     REFERENCE_MISMATCH: number;
     UNKNOWN: number;
   };
+}
+
+export interface ReportMetrics {
+  total_transactions: number;
+  expected_amount: number;
+  settled_amount: number;
+  difference_amount: number;
+  matched_count: number;
+  exceptions_count: number;
+  auto_resolved_count: number;
+  human_approved_count: number;
+  human_review_count: number;
+  match_rate: number;
+  auto_resolution_rate: number;
+}
+
+export interface ReportNarrative {
+  executive_summary: string;
+  reconciliation_outcome: string;
+  key_findings: string[];
+  conclusion: string;
+}
+
+export interface ReconciliationReportData {
+  report_id: string;
+  run_id: string;
+  run_status: string;
+  batch_reference?: string;
+  started_at?: string;
+  completed_at?: string;
+  generated_at: string;
+  generated_by: string;
+  metrics: ReportMetrics;
+  exception_breakdown: Record<string, number>;
+  narrative: ReportNarrative;
+  model_used: string;
 }

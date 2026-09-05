@@ -1,3 +1,12 @@
+/**
+ * SettleIQ Frontend API Client Service
+ *
+ * Central HTTP client module for all backend REST communications.
+ * Encapsulates endpoints for health status, dashboard statistics, multi-CSV ingestion,
+ * reconciliation engine execution, guardrail evaluation, AI investigations,
+ * human review submissions, audit trail querying, and executive report/PDF generation.
+ */
+
 import type {
   HealthStatus,
   DashboardStats,
@@ -12,11 +21,15 @@ import type {
   DecisionResponse,
   HumanReviewRequest,
   HumanReviewResponse,
-  AuditLogItem
+  AuditLogItem,
+  ReconciliationReportData
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+/**
+ * Generic response handler that unwraps JSON payloads and standardizes HTTP error messages.
+ */
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let errorDetail = `Request failed with status ${response.status}`;
@@ -39,6 +52,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+/**
+ * Query backend operational health status and database connectivity.
+ */
 export async function checkBackendHealth(): Promise<HealthStatus> {
   const res = await fetch(`${API_BASE}/health`, {
     headers: { 'Accept': 'application/json' }
@@ -46,6 +62,9 @@ export async function checkBackendHealth(): Promise<HealthStatus> {
   return handleResponse<HealthStatus>(res);
 }
 
+/**
+ * Fetch high-level reconciliation KPIs, transaction volumes, and exception distribution.
+ */
 export async function getDashboardMetrics(): Promise<DashboardStats> {
   const res = await fetch(`${API_BASE}/dashboard`, {
     headers: { 'Accept': 'application/json' }
@@ -53,6 +72,9 @@ export async function getDashboardMetrics(): Promise<DashboardStats> {
   return handleResponse<DashboardStats>(res);
 }
 
+/**
+ * Upload Payments, Settlements, and Fees CSV files for schema validation and staging.
+ */
 export async function uploadFinancialData(
   payments: File,
   settlements: File,
@@ -70,6 +92,9 @@ export async function uploadFinancialData(
   return handleResponse<UploadResponse>(res);
 }
 
+/**
+ * Query recent file upload and batch ingestion history.
+ */
 export async function getUploadHistory(limit: number = 5): Promise<UploadHistoryResponse> {
   const res = await fetch(`${API_BASE}/upload/history?limit=${limit}`, {
     headers: { 'Accept': 'application/json' }
@@ -77,6 +102,9 @@ export async function getUploadHistory(limit: number = 5): Promise<UploadHistory
   return handleResponse<UploadHistoryResponse>(res);
 }
 
+/**
+ * Trigger the 5-rule deterministic reconciliation engine for a specific run.
+ */
 export async function runReconciliation(reconciliation_run_id: string): Promise<ReconcileResponse> {
   const res = await fetch(`${API_BASE}/reconcile`, {
     method: 'POST',
@@ -89,6 +117,9 @@ export async function runReconciliation(reconciliation_run_id: string): Promise<
   return handleResponse<ReconcileResponse>(res);
 }
 
+/**
+ * Batch-evaluate all exceptions in a reconciliation run against the 5 guardrail safety checks.
+ */
 export async function evaluateRunGuardrails(reconciliation_run_id: string): Promise<BatchEvaluationSummary> {
   const res = await fetch(`${API_BASE}/reconciliation/${reconciliation_run_id}/evaluate-all`, {
     method: 'POST',
@@ -97,6 +128,9 @@ export async function evaluateRunGuardrails(reconciliation_run_id: string): Prom
   return handleResponse<BatchEvaluationSummary>(res);
 }
 
+/**
+ * Query and filter reconciliation exceptions with pagination.
+ */
 export async function getExceptions(params?: {
   reconciliation_run_id?: string;
   exception_type?: string;
@@ -117,6 +151,9 @@ export async function getExceptions(params?: {
   return handleResponse<{ total: number; items: ExceptionListItem[] }>(res);
 }
 
+/**
+ * Retrieve correlated exception details including payment, settlements, fees, and decisions.
+ */
 export async function getExceptionDetail(id: string): Promise<ExceptionDetailResponse> {
   const res = await fetch(`${API_BASE}/exceptions/${id}`, {
     headers: { 'Accept': 'application/json' }
@@ -124,6 +161,9 @@ export async function getExceptionDetail(id: string): Promise<ExceptionDetailRes
   return handleResponse<ExceptionDetailResponse>(res);
 }
 
+/**
+ * Fetch the structured EvidencePackage containing source records and calculated financial facts.
+ */
 export async function getExceptionEvidence(id: string): Promise<EvidencePackage> {
   const res = await fetch(`${API_BASE}/exceptions/${id}/evidence`, {
     headers: { 'Accept': 'application/json' }
@@ -131,6 +171,9 @@ export async function getExceptionEvidence(id: string): Promise<EvidencePackage>
   return handleResponse<EvidencePackage>(res);
 }
 
+/**
+ * Trigger an AI root-cause analysis investigation for a specific exception.
+ */
 export async function investigateException(id: string): Promise<AIInvestigationResult> {
   const res = await fetch(`${API_BASE}/exceptions/${id}/investigate`, {
     method: 'POST',
@@ -139,6 +182,9 @@ export async function investigateException(id: string): Promise<AIInvestigationR
   return handleResponse<AIInvestigationResult>(res);
 }
 
+/**
+ * Evaluate an exception against the 5 deterministic guardrail safety gates.
+ */
 export async function evaluateExceptionGuardrails(id: string): Promise<DecisionResponse> {
   const res = await fetch(`${API_BASE}/exceptions/${id}/evaluate`, {
     method: 'POST',
@@ -147,6 +193,9 @@ export async function evaluateExceptionGuardrails(id: string): Promise<DecisionR
   return handleResponse<DecisionResponse>(res);
 }
 
+/**
+ * Submit a human reviewer Maker-Checker decision (APPROVE, REJECT, KEEP_UNRESOLVED).
+ */
 export async function submitHumanReview(
   id: string,
   review: HumanReviewRequest
@@ -162,6 +211,9 @@ export async function submitHumanReview(
   return handleResponse<HumanReviewResponse>(res);
 }
 
+/**
+ * Query paginated immutable audit logs with optional filtering by action or entity.
+ */
 export async function getAuditLogs(params?: {
   action_type?: string;
   entity_type?: string;
@@ -182,9 +234,61 @@ export async function getAuditLogs(params?: {
   return handleResponse<{ total: number; items: AuditLogItem[] }>(res);
 }
 
+/**
+ * Fetch the chronological audit trail for a specific exception record.
+ */
 export async function getExceptionAuditTrail(id: string): Promise<AuditLogItem[]> {
   const res = await fetch(`${API_BASE}/exceptions/${id}/audit`, {
     headers: { 'Accept': 'application/json' }
   });
   return handleResponse<AuditLogItem[]>(res);
 }
+
+/**
+ * Trigger compilation of an executive reconciliation report for a given run.
+ */
+export async function generateReport(
+  runId?: string,
+  generatedBy?: string
+): Promise<ReconciliationReportData> {
+  const params = new URLSearchParams();
+  if (runId) params.append('run_id', runId);
+  if (generatedBy) params.append('generated_by', generatedBy);
+
+  const queryString = params.toString();
+  const url = `${API_BASE}/reports/generate${queryString ? `?${queryString}` : ''}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' }
+  });
+  return handleResponse<ReconciliationReportData>(res);
+}
+
+/**
+ * Fetch existing report data and narrative commentary for a run.
+ */
+export async function getReportData(runId: string): Promise<ReconciliationReportData> {
+  const res = await fetch(`${API_BASE}/reports/${runId}`, {
+    headers: { 'Accept': 'application/json' }
+  });
+  return handleResponse<ReconciliationReportData>(res);
+}
+
+/**
+ * Download the generated executive report as a binary PDF document blob.
+ */
+export async function downloadReportPdf(runId: string): Promise<Blob> {
+  const res = await fetch(`${API_BASE}/reports/${runId}/pdf`);
+  if (!res.ok) {
+    let errorDetail = `Failed to download PDF (status ${res.status})`;
+    try {
+      const errJson = await res.json();
+      if (errJson.detail) errorDetail = errJson.detail;
+    } catch {
+      // ignore
+    }
+    throw new Error(errorDetail);
+  }
+  return res.blob();
+}
+

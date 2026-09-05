@@ -1,5 +1,15 @@
+/**
+ * Standard Empty State Component
+ *
+ * Renders a centered placeholder graphic, title, descriptive message, and optional
+ * call-to-action button when data collections or tables contain no records.
+ */
+
 import React from 'react';
 
+/**
+ * Reusable placeholder view for empty lists, queues, or search result sets.
+ */
 export const EmptyState: React.FC<{
   icon: React.ElementType;
   title: string;

@@ -1,3 +1,10 @@
+/**
+ * Financial KPI Cards
+ *
+ * Displays the expected gross amount, settled processor funds, and net reconciliation
+ * difference metrics used across the dashboard and reconciliation summary interfaces.
+ */
+
 import React from 'react';
 import { CreditCard, Landmark, AlertCircle, CheckCheck, AlertTriangle } from 'lucide-react';
 
@@ -15,6 +22,9 @@ const formatCurrency = (val: number): string => {
   });
 };
 
+/**
+ * Reusable 3-card financial header displaying Gross Expected, Settled Funds, and Net Variance.
+ */
 export const FinancialKpiCards: React.FC<FinancialKpiCardsProps> = ({
   expectedAmount,
   settledAmount,

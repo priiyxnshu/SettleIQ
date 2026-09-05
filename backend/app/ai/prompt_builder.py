@@ -1,3 +1,11 @@
+"""
+SettleIQ AI Prompt Builder Module.
+
+Constructs grounded, schema-constrained prompts for LLM investigation. Combines the
+immutable system instructions, domain investigation rules, JSON schema specification,
+and serialized EvidencePackage into a reproducible prompt payload.
+"""
+
 import json
 from app.schemas.evidence import EvidencePackage
 
@@ -24,12 +32,29 @@ JSON OUTPUT SCHEMA:
 """
 
 class PromptBuilder:
+    """
+    Builder responsible for assembling grounded LLM investigation prompts.
+    """
+
     @staticmethod
     def build_prompt(package: EvidencePackage) -> str:
+        """
+        Assemble the complete LLM prompt containing SYSTEM_PROMPT and serialized EvidencePackage.
+
+        Args:
+            package: The validated EvidencePackage containing payment, settlement, fee,
+                     and pre-calculated financial facts.
+
+        Returns:
+            The complete formatted prompt string ready for submission to the LLM provider.
+        """
         package_json = package.model_dump_json(indent=2)
-        user_prompt = f"""Investigate the following reconciliation exception evidence package and return your investigation in JSON:
+        user_prompt = f"""{SYSTEM_PROMPT}
+
+Investigate the following reconciliation exception evidence package and return your investigation in JSON:
 
 EVIDENCE PACKAGE:
 {package_json}
 """
         return user_prompt
+

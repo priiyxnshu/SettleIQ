@@ -1,3 +1,11 @@
+/**
+ * Application Sidebar Navigation
+ *
+ * Primary navigation sidebar for SettleIQ. Dynamically renders tab links based on
+ * Maker/Checker permissions, displays review queue badge counts, supports collapsible
+ * width state with localStorage persistence, and provides user profile details & logout.
+ */
+
 import React from 'react';
 import {
   LayoutDashboard,
@@ -6,6 +14,7 @@ import {
   AlertTriangle,
   CheckSquare,
   FileText,
+  FileBarChart,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -27,6 +36,9 @@ interface SidebarProps {
   onCloseMobile?: () => void;
 }
 
+/**
+ * Collapsible navigation sidebar enforcing role-based tab access and displaying live queue counts.
+ */
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onSelectTab,
@@ -46,7 +58,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'reconciliation', label: NAV_LABELS.RECONCILIATION, icon: Layers },
     { id: 'exceptions', label: NAV_LABELS.EXCEPTIONS, icon: AlertTriangle },
     { id: 'review', label: NAV_LABELS.REVIEW_QUEUE, icon: CheckSquare, badge: reviewQueueCount },
-    { id: 'audit', label: NAV_LABELS.AUDIT_LOGS, icon: FileText }
+    { id: 'audit', label: NAV_LABELS.AUDIT_LOGS, icon: FileText },
+    { id: 'reports', label: NAV_LABELS.REPORTS, icon: FileBarChart }
   ];
 
   // Dynamically filter navigation items based on the active role's permissions

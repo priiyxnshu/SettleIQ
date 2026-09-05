@@ -1,3 +1,10 @@
+/**
+ * SettleIQ Client Application Entrypoint
+ *
+ * Mounts the React application tree into the DOM root element, configuring
+ * StrictMode, ThemeProvider, and UserProvider context wrappers.
+ */
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

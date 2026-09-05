@@ -1,3 +1,12 @@
+/**
+ * SettleIQ Multi-File Data Ingestion View
+ *
+ * Provides drag-and-drop and file-picker interfaces for uploading the three required
+ * reconciliation datasets (Payments CSV, Settlements CSV, and Fees CSV).
+ * Handles client-side validation, backend batch ingestion, animated progress tracking,
+ * and immediate reconciliation launch capabilities.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   UploadCloud,
@@ -8,7 +17,6 @@ import {
   FileCheck,
   Loader2,
   History,
-  RotateCw,
   FileText
 } from 'lucide-react';
 import type { UploadResponse, UploadHistoryItem } from '../../types';
@@ -26,6 +34,9 @@ interface FlattenedFileEntry {
   status: string;
 }
 
+/**
+ * Data ingestion interface coordinating multi-file uploads and reconciliation initialization.
+ */
 export const UploadView: React.FC<UploadViewProps> = ({
   onReconciliationCompleted
 }) => {
@@ -277,14 +288,6 @@ export const UploadView: React.FC<UploadViewProps> = ({
             </div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Recent Uploads</h3>
           </div>
-          <button
-            onClick={fetchHistory}
-            disabled={loadingHistory}
-            title="Refresh upload history"
-            className="neu-extruded-btn p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
-          >
-            <RotateCw className={`h-3.5 w-3.5 ${loadingHistory ? 'animate-spin text-blue-600 dark:text-blue-400' : ''}`} />
-          </button>
         </div>
 
         {loadingHistory && uploadHistory.length === 0 ? (

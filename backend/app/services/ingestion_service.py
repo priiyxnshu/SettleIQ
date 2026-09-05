@@ -1,3 +1,11 @@
+"""
+SettleIQ Ingestion Service Module.
+
+Handles multi-source financial CSV ingestion (Payments, Settlements, Fees). Performs header
+validation, row-level type/currency parsing, relational integrity checks, transactional batch
+persistence, and comprehensive audit trail generation.
+"""
+
 import io
 import csv
 import json
@@ -31,7 +39,11 @@ PAYMENTS_REQUIRED_HEADERS = {"payment_id", "order_id", "payment_amount", "paymen
 SETTLEMENTS_REQUIRED_HEADERS = {"settlement_id", "payment_id", "settlement_amount", "settlement_date", "settlement_status", "settlement_reference", "settlement_batch_id"}
 FEES_REQUIRED_HEADERS = {"fee_id", "payment_id", "fee_amount", "fee_type", "fee_date"}
 
+
 def parse_date(date_str: str) -> Optional[datetime]:
+    """
+    Parse a date string using supported timestamp and date formats.
+    """
     if not date_str or not date_str.strip():
         return None
     cleaned = date_str.strip()
@@ -52,7 +64,11 @@ def parse_date(date_str: str) -> Optional[datetime]:
     except Exception:
         return None
 
+
 def parse_decimal(val_str: str) -> Optional[Decimal]:
+    """
+    Clean and parse currency string into a Decimal, stripping symbols and commas.
+    """
     if not val_str or not val_str.strip():
         return None
     cleaned = val_str.strip().replace("$", "").replace("₹", "").replace(",", "")
@@ -61,7 +77,13 @@ def parse_decimal(val_str: str) -> Optional[Decimal]:
     except InvalidOperation:
         return None
 
+
 def decode_csv_bytes(file_bytes: bytes, filename: str) -> Tuple[List[str], List[Dict[str, str]]]:
+    """
+    Decode raw CSV bytes into fieldnames and row dictionaries.
+
+    Supports UTF-8 with BOM, standard UTF-8, and Latin-1 fallback.
+    """
     try:
         # Handle UTF-8 and UTF-8 with BOM
         text = file_bytes.decode("utf-8-sig")
@@ -85,7 +107,12 @@ def decode_csv_bytes(file_bytes: bytes, filename: str) -> Tuple[List[str], List[
     rows = list(reader)
     return fieldnames, rows
 
+
 class IngestionService:
+    """
+    Service coordinating the multi-source financial CSV ingestion pipeline.
+    """
+
     @staticmethod
     def process_uploads(
         db: Session,
@@ -97,6 +124,19 @@ class IngestionService:
         fees_filename: str,
         user_id: Optional[str] = None
     ) -> UploadResponse:
+        """
+        Validate and ingest Payments, Settlements, and Fees CSV files into a new reconciliation run.
+
+        Execution Steps:
+            1. Parse CSV bytes and validate required headers across all 3 files.
+            2. Initialize a new ReconciliationRun record in CREATED status.
+            3. Parse and validate row records for each file (amounts, dates, mandatory IDs).
+            4. Batch persist valid records and create Upload tracking entries.
+            5. Log an immutable AuditLog entry recording file ingestion metrics.
+
+        Returns:
+            UploadResponse detailing record counts and validation summary.
+        """
         errors: List[ValidationErrorDetail] = []
         
         # 1. Parse and validate headers
@@ -327,6 +367,16 @@ class IngestionService:
 
     @staticmethod
     def get_upload_history(db: Session, limit: int = 5) -> UploadHistoryResponse:
+        """
+        Query historical reconciliation runs and aggregate upload metadata and counts.
+
+        Args:
+            db: Active database session.
+            limit: Maximum number of recent runs to return (default 5).
+
+        Returns:
+            UploadHistoryResponse containing recent run summaries and total count.
+        """
         runs = db.query(ReconciliationRun).order_by(ReconciliationRun.started_at.desc()).limit(limit).all()
         total = db.query(ReconciliationRun).count()
         items: List[UploadHistoryItem] = []

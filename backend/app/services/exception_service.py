@@ -1,3 +1,11 @@
+"""
+SettleIQ Exception Service Module.
+
+Provides querying, filtering, pagination, and multi-entity correlation for reconciliation
+exceptions. Joins exception records with underlying payments, settlement batches, fee deductions,
+and review decisions for dashboard display and evidence assembly.
+"""
+
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
@@ -22,7 +30,12 @@ from app.schemas.exception import (
     ReviewDecisionDetail
 )
 
+
 class ExceptionService:
+    """
+    Service for querying exception lists and retrieving correlated exception details.
+    """
+
     @staticmethod
     def list_exceptions(
         db: Session,
@@ -32,6 +45,11 @@ class ExceptionService:
         skip: int = 0,
         limit: int = 100
     ) -> ExceptionListResponse:
+        """
+        Query and paginate exceptions with filtering by run ID, type, and status.
+
+        Enriches list items with payment amounts and associated review decisions.
+        """
         query = db.query(ExceptionRecord).options(joinedload(ExceptionRecord.decision))
 
         if reconciliation_run_id:
@@ -100,6 +118,11 @@ class ExceptionService:
 
     @staticmethod
     def get_exception_detail(db: Session, exception_id: str) -> ExceptionDetailResponse:
+        """
+        Retrieve comprehensive detail for an exception, correlating payment, settlements, and fees.
+
+        Handles alternative reference linking (SR_<order_id>) for REFERENCE_MISMATCH exceptions.
+        """
         exc = db.query(ExceptionRecord).filter(ExceptionRecord.id == exception_id).first()
         if not exc:
             raise HTTPException(

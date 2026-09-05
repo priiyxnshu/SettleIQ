@@ -18,7 +18,7 @@ export const DEMO_USERS: Record<string, DemoUser> = {
     roleTitle: 'Reconciliation Manager',
     roleCategory: 'Checker',
     initials: 'YJ',
-    allowedTabs: ['dashboard', 'reconciliation', 'exceptions', 'review', 'audit'],
+    allowedTabs: ['dashboard', 'reconciliation', 'exceptions', 'review', 'audit', 'reports'],
     description: 'Investigates exceptions, evaluates guardrails & performs decision approvals'
   }
 };

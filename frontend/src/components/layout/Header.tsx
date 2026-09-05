@@ -1,3 +1,10 @@
+/**
+ * Application Header Component
+ *
+ * Top navigation bar providing active view title, contextual action slots,
+ * current operational date pill, and light/dark theme toggle button.
+ */
+
 import React from 'react';
 import { Sun, Moon, Calendar, Menu } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,6 +15,9 @@ interface HeaderProps {
   onToggleMobileMenu?: () => void;
 }
 
+/**
+ * Top persistent header component rendered above the active view content.
+ */
 export const Header: React.FC<HeaderProps> = ({
   title,
   actions,
