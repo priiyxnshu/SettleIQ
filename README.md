@@ -24,7 +24,7 @@ An intelligent financial operations platform that correlates fragmented payment 
 
 ---
 
-## Where This Repo Meets the Track 4 Evaluation Criteria
+## Where this repo meets the Razorpay BuildaThon Track 4 AI Finance Controller Evaluation Criteria
 
 | Evaluation Dimension | Where It's Demonstrated |
 |---|---|
